@@ -1,10 +1,24 @@
-# Sensitive / Private Daten & Dokumente
-docs/
-jobs/
-src/
+# Sensitive / Private Daten & Dokumente (Beispieldateien werden versioniert)
+docs/**/*
+!docs/**/
+!docs/README.md
+!docs/**/.gitkeep
+
+jobs/**/*
+!jobs/**/
+!jobs/example.md
+!jobs/**/.gitkeep
+
+src/**/*
+!src/**/
+!src/cv-example.md
+!src/letter-example.md
+!src/**/.gitkeep
 
 # Generierte Build-Artefakte
-dist/
+dist/**/*
+!dist/**/
+!dist/**/.gitkeep
 
 # macOS Metadaten
 .DS_Store

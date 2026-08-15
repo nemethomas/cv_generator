@@ -15,17 +15,20 @@ CV_PDFS = $(patsubst $(SRC_DIR)/cv-%.md, $(DIST_DIR)/cv-%.pdf, $(CV_SRCS))
 LETTER_PDFS = $(patsubst $(SRC_DIR)/letter-%.md, $(DIST_DIR)/letter-%.pdf, $(LETTER_SRCS))
 PDFS = $(CV_PDFS) $(LETTER_PDFS)
 
-.PHONY: all clean help adcubum cv-adcubum letter-adcubum standard cv-standard yousty cv-yousty letter-yousty
+.PHONY: all clean help example cv-example letter-example adcubum cv-adcubum letter-adcubum standard cv-standard yousty cv-yousty letter-yousty
 
 # Standard: alle Dokumente (CVs und Briefe) bauen
 all: $(PDFS)
 
-# Firmen-Sammeltargets (baut CV + Anschreiben)
+# Sammeltargets (baut CV + Anschreiben)
+example: $(DIST_DIR)/cv-example.pdf $(DIST_DIR)/letter-example.pdf
 adcubum: $(DIST_DIR)/cv-adcubum.pdf $(DIST_DIR)/letter-adcubum.pdf
 yousty: $(DIST_DIR)/cv-yousty.pdf $(DIST_DIR)/letter-yousty.pdf
 standard: $(DIST_DIR)/cv-standard.pdf
 
 # Einzeltargets
+cv-example: $(DIST_DIR)/cv-example.pdf
+letter-example: $(DIST_DIR)/letter-example.pdf
 cv-adcubum: $(DIST_DIR)/cv-adcubum.pdf
 letter-adcubum: $(DIST_DIR)/letter-adcubum.pdf
 cv-yousty: $(DIST_DIR)/cv-yousty.pdf
