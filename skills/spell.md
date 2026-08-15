@@ -9,4 +9,4 @@ Prüft Bewerbungsunterlagen auf Schweizer Orthografie (`ss` statt `ß`), Grammat
 4. **Stil & Einheitlichkeit:** Aktionsorientierte Bullet-Points, konsistente Endungen.
 
 ## Aufruf
-- In der CLI: `/spell` (prüft alle Dateien in `src/`) oder `/spell src/cv-adcubum.md` (prüft eine spezifische Datei).
+- In der CLI: `/spell` (prüft alle Dateien in `src/`) oder `/spell src/cv-example.md` (prüft eine spezifische Datei).

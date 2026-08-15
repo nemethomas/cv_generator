@@ -4,7 +4,7 @@ description: Berechnet den Erfüllungsgrad (Match-Score) zwischen einem Stellenb
 
 Führe eine strukturierte Fit-Analyse gemäss dem Skill `fit` durch.
 
-Prüfe den Stellenbeschrieb für "$ARGUMENTS" (falls kein Argument angegeben ist, nimm die Datei aus `jobs/`, z.B. `jobs/adcubum.md`) gegen den entsprechenden Lebenslauf in `src/` (z.B. `src/cv-adcubum.md`).
+Prüfe den Stellenbeschrieb für "$ARGUMENTS" (falls kein Argument angegeben ist, nimm die Datei aus `jobs/`, z.B. `jobs/example.md`) gegen den entsprechenden Lebenslauf in `src/` (z.B. `src/cv-example.md`).
 
 Berechne den Erfüllungsgrad nach der 4-Säulen-Matrix:
 1. Must-Have Anforderungen (40 %)

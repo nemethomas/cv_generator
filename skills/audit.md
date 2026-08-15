@@ -12,5 +12,5 @@ $$\text{Trust-Score} = (T \times 0.25) + (A \times 0.25) + (F \times 0.30) + (P 
 - **20 % Skills & Projekte ($P$):** Nachweisbarkeit von IT-Skills, Tools und Projektergebnissen.
 
 ## Aufruf
-- In der CLI: `/audit` (prüft Standard-Lebenslauf `src/cv-adcubum.md`) oder `/audit <name>` (z. B. `/audit standard`).
+- In der CLI: `/audit` (prüft Standard-Lebenslauf `src/cv-example.md`) oder `/audit <name>`.
 - Tiefenprüfung: `/audit full` oder `/audit <name> full`.

@@ -28,7 +28,7 @@ Dieser Skill prüft automatisiert alle im PDF (`dist/*.pdf`) und in den Quelltex
 1. **Prüfung ausführen:**
    - Entweder über das integrierte Prüfskript:
      ```bash
-     python3 skills/links/check_links.py [adcubum | standard | all]
+     python3 skills/links/check_links.py [example | all | <ziel>]
      ```
    - Oder direkt durch Analyse der Markdown-Dateien `src/*.md` und PDF-Dateien `dist/*.pdf`.
 
@@ -42,5 +42,5 @@ Dieser Skill prüft automatisiert alle im PDF (`dist/*.pdf`) und in den Quelltex
 ## CLI-Aufruf
 
 - `/links` (prüft alle PDFs in `dist/`)
-- `/links adcubum` (prüft gezielt `dist/adcubum.pdf`)
-- `/links standard` (prüft gezielt `dist/standard.pdf`)
+- `/links example` (prüft gezielt `dist/cv-example.pdf`)
+- `/links <ziel>`

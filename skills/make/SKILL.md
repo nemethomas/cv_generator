@@ -33,9 +33,9 @@ pandoc src/letter-<target>.md \
 
 ## Parameter & Optionen
 
-- `adcubum` (Standard): Baut und öffnet `dist/cv-adcubum.pdf` und `dist/letter-adcubum.pdf`
-- `cv-adcubum`: Baut und öffnet nur den Lebenslauf `dist/cv-adcubum.pdf`
-- `letter-adcubum`: Baut und öffnet nur das Anschreiben `dist/letter-adcubum.pdf`
-- `standard`: Baut und öffnet `dist/cv-standard.pdf` aus `src/cv-standard.md`
+- `example` (Standard): Baut und öffnet `dist/cv-example.pdf` und `dist/letter-example.pdf`
+- `cv-example`: Baut und öffnet nur den Lebenslauf `dist/cv-example.pdf`
+- `letter-example`: Baut und öffnet nur das Anschreiben `dist/letter-example.pdf`
+- `<ziel>`: Baut und öffnet `dist/cv-<ziel>.pdf` und `dist/letter-<ziel>.pdf`
 - `all`: Kompiliert alle vorhandenen Dokumente in `src/*.md` und öffnet sie
 

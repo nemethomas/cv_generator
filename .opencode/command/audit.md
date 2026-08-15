@@ -5,8 +5,8 @@ description: Schneller Trust- & Evidence-Check des Lebenslaufs gegen die Nachwei
 Führe ein schnelles und fokussiertes Trust- & Evidence-Audit gemäss dem Skill `audit` durch.
 
 **Ziel-Datei:**
-- Falls ein Argument übergeben wurde (z. B. `/audit adcubum` oder `/audit src/cv-adcubum.md`), prüfe diese Datei.
-- Falls kein Argument angegeben ist, prüfe standardmässig `src/cv-adcubum.md`.
+- Falls ein Argument übergeben wurde (z. B. `/audit example` oder `/audit src/cv-example.md`), prüfe diese Datei.
+- Falls kein Argument angegeben ist, prüfe standardmässig `src/cv-example.md`.
 
 **Vorgehen (zielgerichtet & schnell):**
 1. Gleiche die Lebenslauf-Stationen und Bildungsabschlüsse mit den Dateinamen in `docs/` ab.

@@ -227,8 +227,10 @@ def main():
         pdf_files = [dist_dir / target]
     elif (dist_dir / f"{target}.pdf").exists():
         pdf_files = [dist_dir / f"{target}.pdf"]
-    elif (dist_dir / f"CV_Thomas_Nemeth_{target}.pdf").exists():
-        pdf_files = [dist_dir / f"CV_Thomas_Nemeth_{target}.pdf"]
+    elif (dist_dir / f"cv-{target}.pdf").exists():
+        pdf_files = [dist_dir / f"cv-{target}.pdf"]
+    elif (dist_dir / f"letter-{target}.pdf").exists():
+        pdf_files = [dist_dir / f"letter-{target}.pdf"]
     else:
         # Try matching any pdf matching target
         matched = list(dist_dir.glob(f"*{target}*.pdf"))

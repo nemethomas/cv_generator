@@ -9,6 +9,6 @@ Orchestriert eine vollständige Qualitätsprüfung des Lebenslaufs über 4 Prüf
 4. `links` – Validierung aller Hyperlinks & E-Mail-Adressen in `dist/*.pdf`
 
 ## Aufruf
-- `/test` (Standard: `adcubum`)
-- `/test adcubum`
-- `/test standard`
+- `/test` (Standard: `example`)
+- `/test example`
+- `/test <ziel>`

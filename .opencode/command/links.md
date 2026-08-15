@@ -5,7 +5,7 @@ description: Prüft alle Hyperlinks, URLs und E-Mail-Adressen im PDF-Lebenslauf 
 Führe eine automatisierte Prüfung aller Links und E-Mail-Adressen in den Lebenslauf-PDFs gemäss dem Skill `links` durch.
 
 **Ziel:**
-- Falls ein Argument übergeben wurde (z. B. `$ARGUMENTS` wie `adcubum` oder `standard`), prüfe das entsprechende PDF in `dist/`.
+- Falls ein Argument übergeben wurde (z. B. `$ARGUMENTS` wie `example`), prüfe das entsprechende PDF in `dist/`.
 - Falls kein Argument angegeben ist, prüfe alle PDFs in `dist/`.
 
 **Ausführung:**

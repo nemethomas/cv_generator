@@ -11,7 +11,7 @@ Dieser Skill dient als reiner **Workflow-Orchestrator** ohne eigene Geschäftslo
 
 ## Ablauf des Workflows
 
-Bei Aufruf von `/test` bzw. `/test <target>` (z. B. `/test adcubum`) werden folgende Prüfungen sequenziell durchlaufen:
+Bei Aufruf von `/test` bzw. `/test <target>` (z. B. `/test example`) werden folgende Prüfungen sequenziell durchlaufen:
 
 1. **🎯 Fit (`fit`):**
    - Abgleich des Lebenslaufs (`src/cv-<target>.md`) mit der Stellenausschreibung (`jobs/<target>.md`).
@@ -71,6 +71,6 @@ Der Skill gibt ausschliesslich die aggregierte Zusammenfassung der 4 Module aus:
 
 ## Aufruf
 
-- `/test` (prüft Standard-Lebenslauf `adcubum`)
-- `/test adcubum`
-- `/test standard`
+- `/test` (prüft Standard-Lebenslauf `example`)
+- `/test example`
+- `/test <target>`

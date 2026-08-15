@@ -12,4 +12,4 @@ $$\text{Gesamt-Score} = (M \times 0.40) + (N \times 0.25) + (R \times 0.20) + (K
 - **15 % ATS & Keywords ($K$):** Direkte Keyword-Trefferquote der Kernbegriffe aus dem Inserat.
 
 ## Aufruf
-- In der CLI: `/fit` (prüft das aktuellste Jobinserat) oder `/fit <name>` (z.B. `/fit adcubum`).
+- In der CLI: `/fit` (prüft das aktuellste Jobinserat) oder `/fit <name>` (z. B. `/fit example`).

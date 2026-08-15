@@ -147,7 +147,7 @@ def calculate_match_score(title, description, company_name, config):
     Calculate an evidence match score (0-100%) against CV profile and certificates.
     Profile strengths:
       - Oracle, SQL, PL/SQL, ETL, DWH, Python, Data Engineering, Data Science, Machine Learning
-      - Adcubum SYRIUS, Migration, Versicherung (Leistungen, Bestand), Inputmanagement
+      - SYRIUS, Migration, Versicherung (Leistungen, Bestand), Inputmanagement
       - Requirements Engineering, BPMN, IREB, CAS BA, CAS PM, ITIL, IPMA
       - IAM, Berechtigungen, Access Management, Unix/Linux, REST APIs
     """
@@ -159,7 +159,7 @@ def calculate_match_score(title, description, company_name, config):
         "sql": 7, "oracle": 7, "pl/sql": 6, "python": 6,
         "data engineering": 8, "data scientist": 8, "data science": 8, "machine learning": 6,
         "etl": 6, "dwh": 6, "data warehouse": 6, "elasticsearch": 4, "kibana": 4,
-        "syrius": 9, "adcubum": 9, "migration": 6, "versicherung": 5, "krankenversicherung": 5,
+        "syrius": 9, "migration": 6, "versicherung": 5, "krankenversicherung": 5,
         "input engineer": 8, "dokumentenmanagement": 8, "inputmanagement": 8, "input management": 8,
         "dms": 6, "oms": 6, "ecm": 6, "archiv": 5, "kodak": 5, "docprostar": 5,
         "business analyst": 8, "business analysis": 8, "business analyse": 8,
