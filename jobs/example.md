@@ -1,27 +1,27 @@
-# Stellenbeschreibung: Senior Software & Data Engineer (80-100%)
+# Stellenbeschreibung: Principal Cloud & Solutions Architect (80-100%)
 
-**Unternehmen:** Musterfirma AG  
-**Standort:** Zürich  
+**Unternehmen:** NovaTech Solutions AG  
+**Standort:** Bern  
 **Datum:** 2026-08-15  
-**Quelle:** [https://www.jobs.ch/de/stellenangebote/detail/example-12345/](https://www.jobs.ch/de/stellenangebote/detail/example-12345/)  
-**ID:** `example-12345`  
+**Quelle:** [https://www.jobs.ch/de/stellenangebote/detail/example-98765/](https://www.jobs.ch/de/stellenangebote/detail/example-98765/)  
+**ID:** `example-98765`  
 
 ---
 
 ## Anforderungsprofil & Aufgaben
 
-Wir entwickeln innovative, datengetriebene Plattformen für den Schweizer Markt. Zur Verstärkung unseres Entwicklungsteams in Zürich suchen wir eine engagierte Persönlichkeit als Senior Software & Data Engineer.
+Wir entwickeln hochmoderne Cloud-Native-Plattformen für Enterprise-Kunden in der Schweiz. Zur Verstärkung unseres Architekturteams in Bern suchen wir eine erfahrene und visionäre Persönlichkeit als Principal Cloud & Solutions Architect.
 
 ### Deine Aufgaben
-- Konzeption, Entwicklung und Betrieb moderner Datenpipelines und Microservices (Python, Cloud)
-- Datenmodellierung und Optimierung von Datenbanken (PostgreSQL, SQL)
-- Integration interner und externer Schnittstellen (REST APIs, Event Streams)
-- Begleitung von Projekten von der Anforderungsanalyse bis zum produktiven Rollout
-- Enge Zusammenarbeit mit Product Ownern, Data Scientists und Fachbereichen
+- Konzeption und Weiterentwicklung moderner Multi-Cloud- und Microservice-Architekturen (AWS, Google Cloud, Kubernetes)
+- Etablierung von Infrastructure as Code (Terraform) und Automatisierung über CI/CD- und GitOps-Pipelines
+- Technische Führung, Beratung und Coaching von Entwicklungsteams in Architektur- und Security-Fragen
+- Evaluation neuer Technologien, Erstellung von Architecture Decision Records (ADRs) und Proof of Concepts
+- Enge Abstimmung mit Produktmanagement und C-Level-Stakeholdern
 
 ### Dein Profil
-- Abgeschlossenes Studium in Informatik, Data Science (ETH/Uni/FH) oder vergleichbare Qualifikation
-- Mehrjährige Praxiserfahrung in Software- oder Datenentwicklung mit Python und SQL
-- Erfahrung mit Cloud-Infrastrukturen (Docker, CI/CD, Linux) und relationalen Datenmodellen
-- Verständnis für moderne Schnittstellen (REST APIs) und verteilte Systeme
-- Sehr gute Deutsch- und Englischkenntnisse
+- Abgeschlossenes Studium in Informatik (Uni/ETH/FH) oder fundierte, vergleichbare Praxiserfahrung
+- Mehrjährige Erfahrung als Solutions Architect oder Lead Cloud Engineer im Enterprise-Umfeld
+- Tiefes Verständnis von verteilten Systemen, Event-Driven Architecture (Kafka) und Container-Orchestrierung (Kubernetes)
+- Hands-on-Erfahrung mit modernen Programmiersprachen (Go, TypeScript, Python)
+- Verhandlungssichere Deutsch- und Englischkenntnisse

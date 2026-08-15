@@ -1,33 +1,33 @@
 ---
-firstname: Max
-lastname: Muster
-title: Senior Software & Data Engineer
-address: "Musterstrasse 1, 8000 Zürich"
-phone: "+41 79 000 00 00"
-email: max.muster@beispiel.ch
-linkedin: maxmuster
-github: maxmuster
+firstname: Erika
+lastname: Mustermann
+title: Cloud & Solutions Architect
+address: "Mustergasse 12, 3000 Bern"
+phone: "+41 31 000 00 00"
+email: erika.mustermann@example.org
+linkedin: erika-mustermann
+github: erika-mustermann
 
 recipient:
-  company: "Musterfirma AG"
-  department: "Human Resources / IT Recruiting"
-  contact: "Frau Anna Beispiel"
-  street: "Technologiestrasse 10"
-  city: "8005 Zürich"
+  company: "NovaTech Solutions AG"
+  department: "People & Culture / Technology"
+  contact: "Herr Martin Meier"
+  street: "Innovationspark 5"
+  city: "3008 Bern"
 
-location: "Zürich"
+location: "Bern"
 date: "15. August 2026"
 
-subject: "Bewerbung als Senior Software & Data Engineer (Ref. 12345)"
-opening: "Sehr geehrte Frau Beispiel"
+subject: "Bewerbung als Principal Cloud & Solutions Architect (Ref. 98765)"
+opening: "Sehr geehrter Herr Meier"
 closing: "Freundliche Grüsse"
-enclosures: "Lebenslauf, Diplome, Arbeitszeugnisse"
+enclosures: "Lebenslauf, Zertifikate, Arbeitszeugnisse"
 ---
 
-mit grossem Interesse habe ich Ihre Stellenausschreibung für die Position als **Senior Software & Data Engineer** bei der Musterfirma AG gelesen. Als erfahrener Entwickler mit mehrjähriger Praxis in der Konzeption skalierbarer Datenlösungen, Cloud-Services und moderner Datenbankarchitekturen reizt mich die Aussicht, meine Erfahrung in Ihr innovatives Team einzubringen.
+mit grossem Interesse habe ich Ihre Stellenausschreibung für die Position als **Principal Cloud & Solutions Architect** bei der NovaTech Solutions AG gelesen. Als erfahrene Architektin mit mehrjähriger Praxis im Entwurf skalierbarer Multi-Cloud-Plattformen, modernen Kubernetes-Ökosystemen und verteilten Systemen reizt mich die Aufgabe, Ihre technologische Infrastruktur zukunftssicher weiterzuentwickeln.
 
-In meiner aktuellen Tätigkeit verantworte ich die technische Architektur und Implementierung von Datenpipelines und Microservices. Dabei verbinde ich fundierte Kenntnisse in Python, SQL und modernen Cloud-Stacks mit der Fähigkeit, komplexe Anforderungen strukturiert in performante, sichere Lösungen zu übersetzen.
+In meiner aktuellen Rolle leite ich das Plattform-Engineering und verantworte die Cloud-Strategie für unternehmensweite Microservice-Architekturen. Dabei verbinde ich fundierte Hands-on-Expertise in Go, TypeScript und Infrastructure as Code mit der Fähigkeit, strategische Architekturrichtlinien im interdisziplinären Dialog erfolgreich zu etablieren.
 
-Besonders schätze ich an der Musterfirma AG den hohen technologischen Anspruch und den klaren Fokus auf agile, nutzerzentrierte Entwicklung. Ich freue mich darauf, meine Erfahrung in der Zusammenarbeit mit interdisziplinären Teams einzusetzen und die Weiterentwicklung Ihrer Plattformen aktiv mitzugestalten.
+Besonders ansprechend finde ich den klaren Innovationsfokus der NovaTech Solutions AG und Ihre Kultur des agilen Wissenstransfers. Ich freue mich darauf, meine Erfahrung in Cloud-Native-Technologien einzubringen und gemeinsam mit Ihrem Team leistungsfähige Lösungen zu realisieren.
 
-Über die Gelegenheit, mich Ihnen in einem persönlichen Gespräch vorzustellen, freue ich mich.
+Über die Gelegenheit, mich Ihnen in einem persönlichen Gespräch vorzustellen, freue ich mich sehr.
