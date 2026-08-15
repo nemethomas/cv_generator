@@ -45,6 +45,7 @@ Dadurch lassen sich Inhalt und Gestaltung vollständig unabhängig voneinander p
 │   ├── fit/                 # Match-Score- & ATS-Analyse gegen Stelleninserat
 │   ├── links/               # Link- & URL-Validierung
 │   ├── make/                # PDF-Kompilierung & Vorschau
+│   ├── scout/               # Job-Scouting im Raum Zürich (jobs.ch API & Whitelist)
 │   ├── spell/               # Rechtschreib- & Stilprüfung (Schweizer Orthografie)
 │   └── test/                # Orchestrierte Gesamtprüfung aller Skills
 ├── src/                     # Quelldateien in Markdown
@@ -129,10 +130,11 @@ pandoc src/letter-<firma>.md \
 
 ## Qualitätssicherungs-Skills
 
-Das Projekt beinhaltet spezialisierte Skills zur automatisierten Prüfung und Optimierung von Bewerbungsunterlagen:
+Das Projekt beinhaltet spezialisierte Skills zur automatisierten Suche, Prüfung und Optimierung von Bewerbungsunterlagen:
 
 | Skill | Zweck & Funktion |
 | :--- | :--- |
+| **`scout`** | Durchsucht den Schweizer Stellenmarkt (Grossraum Zürich, Pensum $\ge$ 60%), filtert nach Black-/Whitelist (*Swisscom, ZKB, Google, Zühlke, Inventx*) und berechnet einen Evidence-Match-Score anhand der Arbeitszeugnisse. |
 | **`make`** | Kompiliert Lebensläufe und Motivationsschreiben mit Pandoc/XeLaTeX und öffnet das PDF direkt in der macOS-Vorschau. |
 | **`spell`** | Prüft Rechtschreibung, Grammatik, Zeichensetzung, IT-Komposita und Schweizer Rechtschreibregeln (konsequent *ss* statt *ß*). |
 | **`fit`** | Analysiert den Match-Score (0–100%) zwischen Stelleninserat (`jobs/<firma>.md`) und Lebenslauf (`src/cv-<firma>.md`), inklusive ATS-Keyword-Prüfung und Lückenanalyse. |
@@ -142,15 +144,16 @@ Das Projekt beinhaltet spezialisierte Skills zur automatisierten Prüfung und Op
 
 ---
 
-## Workflow: Neues Bewerbungsdossier anlegen
+## Workflow: Vom Job-Scouting zum fertigen Dossier
 
-1. **Stelleninserat hinterlegen:** Anforderungsprofil unter `jobs/<firma>.md` ablegen.
-2. **Dokumente erstellen:** Neue Markdown-Dateien unter `src/cv-<firma>.md` und `src/letter-<firma>.md` anlegen (z. B. auf Basis von `src/cv-standard.md`).
-3. **Qualität prüfen:** 
+1. **Passende Stellen finden:** `/scout` oder `/scout "Data Scientist"` ausführen, um Vakanzen in Zürich zu identifizieren.
+2. **Stelleninserat importieren:** Ausgewähltes Inserat als `jobs/<firma>.md` abspeichern.
+3. **Dokumente erstellen:** Markdown-Dateien `src/cv-<firma>.md` und `src/letter-<firma>.md` anlegen (z. B. auf Basis von `src/cv-standard.md`).
+4. **Qualität prüfen:** 
    - Rechtschreibung prüfen mit Skill `spell`
    - Passgenauigkeit prüfen mit Skill `fit`
    - Nachweise abgleichen mit Skill `audit`
-4. **PDFs generieren:** `make <firma>` ausführen. Die Dokumente werden in `dist/` abgelegt und zur Prüfung geöffnet.
+5. **PDFs generieren:** `make <firma>` ausführen. Die Dokumente werden in `dist/` abgelegt und zur Prüfung geöffnet.
 
 ---
 

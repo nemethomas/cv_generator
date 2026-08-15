@@ -1,0 +1,91 @@
+{
+  "location": {
+    "primary": "Zürich",
+    "allowed_regions": [
+      "Zürich",
+      "Altstetten",
+      "Dietikon",
+      "Dübendorf",
+      "Wallisellen"
+    ]
+  },
+  "workload": {
+    "min_percentage": 60,
+    "max_percentage": 100
+  },
+  "whitelist_companies": [
+    {
+      "name": "Swisscom",
+      "aliases": ["Swisscom (Schweiz) AG", "Swisscom AG", "localsearch"],
+      "career_url": "https://jobs.swisscom.ch"
+    },
+    {
+      "name": "Zürcher Kantonalbank",
+      "aliases": ["ZKB", "Zürcher Kantonalbank AG", "Zürcher Kantonalbank"],
+      "career_url": "https://www.zkb.ch/karriere"
+    },
+    {
+      "name": "Google",
+      "aliases": ["Google Switzerland", "Google Switzerland GmbH", "Google Inc.", "Google"],
+      "career_url": "https://careers.google.com"
+    },
+    {
+      "name": "Zühlke Informatik",
+      "aliases": ["Zühlke Engineering AG", "Zühlke", "Zühlke Group", "Zuehlke"],
+      "career_url": "https://www.zuehlke.com/de/karriere"
+    },
+    {
+      "name": "Inventx",
+      "aliases": ["Inventx AG", "Inventx", "Inventix"],
+      "career_url": "https://inventx.ch/karriere"
+    },
+    {
+      "name": "Migros",
+      "aliases": ["Migros-Genossenschafts-Bund", "Migros Bank AG", "Migros Bank", "Migros", "MGB", "Migros IT Services", "Genossenschaft Migros Zürich"],
+      "career_url": "https://jobs.migros.ch"
+    }
+  ],
+  "blacklist_companies": [
+    "RUAG",
+    "RUAG MRO Holding",
+    "RUAG Defence",
+    "RUAG Space",
+    "RUAG Corporate",
+    "RUAG AG"
+  ],
+  "target_roles": [
+    "Business Engineer",
+    "Requirements Engineer",
+    "IT Business Analyst",
+    "Solution Designer",
+    "Data Engineer",
+    "Data Scientist",
+    "Product Owner",
+    "Technical Consultant",
+    "Input Engineer",
+    "Dokumentenmanagement"
+  ],
+  "core_competencies": [
+    "Oracle",
+    "SQL",
+    "PL/SQL",
+    "Python",
+    "SYRIUS",
+    "ETL",
+    "DWH",
+    "Data Engineering",
+    "Data Science",
+    "Machine Learning",
+    "Migration",
+    "IAM",
+    "Berechtigungen",
+    "APIs",
+    "REST",
+    "Krankenversicherung",
+    "Leistungen",
+    "Bestand",
+    "IREB",
+    "IPMA",
+    "ITIL"
+  ]
+}

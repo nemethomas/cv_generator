@@ -1,5 +1,5 @@
 % Pandoc-LaTeX-Vorlage für CV (kompilieren mit xelatex)
-\documentclass[10pt,letterpaper]{article}
+\documentclass[10pt,a4paper]{article}
 
 % Language and font encoding
 \usepackage[ngerman]{babel}
@@ -62,37 +62,36 @@
 \providecommand{\tightlist}{%
   \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
 
-% Section styling (Pandoc erzeugt \section aus ## im Markdown)
+% Section styling (Pandoc erzeugt \section aus ## im Markdown) - Ohne Trennlinien, reine Weißraum-Hierarchie
 \titleformat{\section}{\large\bfseries\color{accent}}{}{0pt}{}
-\titlespacing*{\section}{0pt}{0.4cm}{0.15cm}
-\newcommand{\sectionrule}{\vspace{0.15cm}\noindent{\color{accent}\rule{\linewidth}{0.5pt}}\par\vspace{0.25cm}}
+\titlespacing*{\section}{0pt}{0.55cm}{0.18cm}
 
 \titleformat{\subsection}{\large\bfseries\color{accent}}{}{0pt}{}
-\titlespacing*{\subsection}{0pt}{0.25cm}{0.1cm}
+\titlespacing*{\subsection}{0pt}{0.35cm}{0.12cm}
 
 % Experience Item Command
 \newcommand{\experienceitem}[4]{%
-  \vspace{0.25cm}%
+  \vspace{0.28cm}%
   \noindent{\large\bfseries\color{accent} #1} \hfill {\small\color{brand}\bfseries #3} \\
   \noindent{\textbf{\color{textdark}#2}} \hfill {\small\color{textmuted}\textit{#4}}%
-  \vspace{0.15cm}%
+  \vspace{0.12cm}%
 }
 
 % Education Item Command
 \newcommand{\educationitem}[4]{%
-  \vspace{0.2cm}%
+  \vspace{0.22cm}%
   \noindent{\bfseries\color{accent} #1} \hfill {\small\color{brand}\bfseries #3} \\
   \noindent{\textbf{\color{textdark}#2}} \hfill {\small\color{textmuted}\textit{#4}}\par
-  \vspace{0.15cm}%
+  \vspace{0.14cm}%
 }
 
 % Project Item Command
 \newcommand{\projectitem}[3]{%
-  \vspace{0.2cm}%
+  \vspace{0.26cm}%
   \noindent{\large\bfseries\color{accent} #1} \hfill {\small\color{brand}\bfseries #2}\par
-  \vspace{0.05cm}%
+  \vspace{0.06cm}%
   \noindent{\textbf{\color{textdark}#3}}\par
-  \vspace{0.08cm}%
+  \vspace{0.1cm}%
 }
 
 % ATS-freundliche Icon-Beschriftung
@@ -103,37 +102,26 @@
   {\noindent\hangindent=0.5cm\hangafter=1
   \makebox[0.5cm][l]{\small\color{brand}\raisebox{-0.08em}{#1}}%
   {\small\color{textdark}#2}\par}%
-  \vspace{0.15cm}
+  \vspace{0.22cm}
 }
 
-% Sidebar Section Header
+% Sidebar Section Header - Ohne Trennlinien
 \newcommand{\sidebarsection}[1]{%
-  \vspace{0.4cm}%
+  \vspace{0.65cm}%
   {\large\bfseries\color{accent} #1}\par%
-  \vspace{0.12cm}%
-  \noindent\textcolor{accent}{\rule{\linewidth}{0.5pt}}\par%
-  \vspace{0.22cm}%
+  \vspace{0.25cm}%
 }
 
-% Section rule nach jedem \section und \subsection
-\let\oldsection\section
-\renewcommand{\section}[1]{\oldsection{#1}\sectionrule}
-\let\oldsubsection\subsection
-\renewcommand{\subsection}[1]{{\color{accent}\oldsubsection{#1}}\sectionrule}
-
-% Sidebar-Hintergrund: wird bei JEDER Seite neu gezeichnet (eso-pic-Hook mit
-% einfachem \rule statt TikZ-Overlay -- das ist zuverlaessiger in Kombination
-% mit paracol), erscheint also auf jeder Seite -- nicht nur auf der ersten
-% (das war der Kernfehler: im Original stand dieser Code einmalig im Fliesstext).
+% Sidebar-Hintergrund: wird bei JEDER Seite neu gezeichnet
 \AddToShipoutPictureBG{%
   \AtPageLowerLeft{%
     \color{sidebarbg}%
-    \rule{0.33\paperwidth}{\paperheight}%
+    \rule{0.35\paperwidth}{\paperheight}%
   }%
 }
 
-% Spaltenaufteilung: 33% Sidebar, 67% Hauptspalte.
-\columnratio{0.33}
+% Spaltenaufteilung: 35% Sidebar, 65% Hauptspalte.
+\columnratio{0.35}
 \setlength{\columnsep}{0pt}
 
 \begin{document}
@@ -141,7 +129,7 @@
 
 \begin{paracol}{2}
 
-\begin{adjustwidth}{0.8cm}{0.6cm}
+\begin{adjustwidth}{0.75cm}{0.55cm}
     \RaggedRight
     \vspace{0.4cm}
 
@@ -164,13 +152,11 @@ $endif$
     \vspace{0.25cm}
 
     \begin{center}
-    {\LARGE\bfseries\color{accent} $firstname$\\[0.12cm]$lastname$} \\[0.2cm]
+    {\LARGE\bfseries\color{accent} $firstname$\\[0.12cm]$lastname$} \\[0.22cm]
     {\small\bfseries\color{brand} $title$}
     \end{center}
 
-    \vspace{0.35cm}
-    \noindent{\color{accent}\rule{\linewidth}{0.8pt}}\par
-    \vspace{0.35cm}
+    \vspace{0.55cm}
 
 $if(email)$
     \contactitem{\atsicon{E-Mail}{\faEnvelope}}{\href{mailto:$email$}{$email$}}
@@ -191,9 +177,9 @@ $endif$
 $if(skills)$
     \sidebarsection{Kompetenzen}
 $for(skills)$
-    \textbf{$skills.category$} \\
-    {\small $skills.items$}\par
-    \vspace{0.25cm}
+    {\bfseries\color{textdark} $skills.category$}\par\vspace{0.06cm}
+    {\small\color{textmuted} $skills.items$}\par
+    \vspace{0.35cm}
 $endfor$
 $if(pagebreak_sidebar)$
 \pagebreak
@@ -204,7 +190,7 @@ $if(certificates)$
 \nopagebreak
     \sidebarsection{Zertifikate}
 $for(certificates)$
-    $certificates$\par
+    {\small\color{textdark} $certificates$}\par\vspace{0.18cm}
 $endfor$
 $endif$
 
@@ -212,9 +198,9 @@ $if(education)$
 \nopagebreak
     \sidebarsection{Aus- und Weiterbildung}
 $for(education)$
-    \textbf{$education.degree$}\par
+    {\bfseries\small\color{textdark} $education.degree$}\par
     {\small\color{textmuted}$if(education.year)${\color{brand}\bfseries $education.year$} · $endif$$education.institution$}\par
-    \vspace{0.18cm}
+    \vspace{0.26cm}
 $endfor$
 $endif$
 
@@ -222,7 +208,7 @@ $if(languages)$
 \nopagebreak
     \sidebarsection{Sprachen}
 $for(languages)$
-    \textbf{$languages.name$} ($languages.level$)\par
+    {\small\textbf{\color{textdark}$languages.name$}} {\small\color{textmuted}($languages.level$)}\par\vspace{0.18cm}
 $endfor$
 $endif$
 
@@ -230,7 +216,7 @@ $endif$
 
 \switchcolumn
 
-\begin{adjustwidth}{0.7cm}{0cm}
+\begin{adjustwidth}{0.75cm}{0cm}
   \vspace{0.4cm}
   \color{textdark}
   % Flattersatz ohne Silbentrennung: keine gedehnten Wortabstaende
