@@ -1,0 +1,30 @@
+# Sensitive / Private Daten & Dokumente
+docs/
+jobs/
+
+# Generierte Build-Artefakte
+dist/
+
+# macOS Metadaten
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+**/.DS_Store
+
+# Node / Tooling Abhängigkeiten
+node_modules/
+.opencode/node_modules/
+
+# LaTeX Hilfs- und Logdateien (falls direkt erzeugt)
+*.aux
+*.log
+*.out
+*.toc
+*.fls
+*.fdb_latexmk
+*.synctex.gz
+
+# Editor & IDE Konfigurationen
+.vscode/
+.idea/

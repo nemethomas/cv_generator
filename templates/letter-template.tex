@@ -1,0 +1,137 @@
+% Pandoc-LaTeX-Vorlage für Motivationsschreiben / Anschreiben (kompilieren mit xelatex)
+\documentclass[10pt,a4paper]{article}
+
+% Sprache und Schriftarten
+\usepackage[ngerman]{babel}
+\usepackage{fontspec}
+\defaultfontfeatures{Ligatures=TeX}
+\setmainfont{Inter}[
+  Path = assets/fonts/,
+  UprightFont = Inter-Regular.otf,
+  BoldFont = Inter-Bold.otf,
+  ItalicFont = Inter-Italic.otf,
+  BoldItalicFont = Inter-BoldItalic.otf
+]
+
+% Silbentrennung
+\hyphenation{
+  Adcubum
+  SYRIUS
+  Consultant
+  Engineering
+  Requirements
+  Kranken-ver-si-che-rungs-we-sen
+  Un-ter-neh-mens-kun-den-ge-schäft
+  Re-gu-la-to-ri-en
+  Au-to-ma-ti-sie-rung
+  Mi-gra-ti-ons-pro-jekt
+}
+
+% Seitenränder (Kompaktes Schweizer Briefformat für exakten 1-Seiter)
+\usepackage[left=2.2cm, right=2.2cm, top=1.6cm, bottom=1.6cm, noheadfoot]{geometry}
+
+% Pakete
+\usepackage[dvipsnames]{xcolor}
+\usepackage{fontawesome5}
+\usepackage[hidelinks]{hyperref}
+\usepackage{microtype}
+\usepackage{setspace}
+\usepackage{parskip}
+\usepackage{ragged2e}
+
+% Farbdefinitionen (Exakt wie im Lebenslauf)
+\definecolor{accent}{HTML}{000000}
+\definecolor{brand}{HTML}{0369A1}
+\definecolor{textdark}{HTML}{000000}
+\definecolor{textmuted}{HTML}{475569}
+\definecolor{bordercolor}{HTML}{CBD5E1}
+
+% Absatzformatierung
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{0.25cm}
+\setstretch{1.14}
+
+\begin{document}
+\pagestyle{empty}
+
+% ==========================================
+% ABSENDER-KOPF (Harmonisiert mit CV)
+% ==========================================
+\begin{minipage}[t]{0.52\textwidth}
+  {\LARGE\bfseries\color{accent} $if(firstname)$$firstname$$endif$ $if(lastname)$$lastname$$endif$}\par
+  \vspace{0.06cm}
+  {\large\bfseries\color{brand} $if(title)$$title$$endif$}\par
+\end{minipage}
+\hfill
+\begin{minipage}[t]{0.45\textwidth}
+  \RaggedLeft\small\color{textmuted}
+  $if(address)${\color{brand}\faMapMarker*}\hspace{0.4em}$address$\\$endif$
+  $if(phone)${\color{brand}\faPhone*}\hspace{0.4em}$phone$\\$endif$
+  $if(email)${\color{brand}\faEnvelope}\hspace{0.4em}\href{mailto:$email$}{$email$}\\$endif$
+  $if(linkedin)${\color{brand}\faLinkedin}\hspace{0.4em}\href{https://linkedin.com/in/$linkedin$}{linkedin.com/in/$linkedin$}\\$endif$
+  $if(github)${\color{brand}\faGithub}\hspace{0.4em}\href{https://github.com/$github$}{github.com/$github$}$endif$
+\end{minipage}
+
+\vspace{0.25cm}
+{\color{bordercolor}\hrule height 0.75pt}
+\vspace{0.45cm}
+
+% ==========================================
+% EMPFÄNGER-ADRESSE & DATUM
+% ==========================================
+\begin{minipage}[t]{0.55\textwidth}
+  \small\color{textdark}
+  $if(recipient.company)${\textbf{$recipient.company$}}\\$endif$
+  $if(recipient.department)$$recipient.department$\\$endif$
+  $if(recipient.contact)$$recipient.contact$\\$endif$
+  $if(recipient.street)$$recipient.street$\\$endif$
+  $if(recipient.city)$$recipient.city$$endif$
+\end{minipage}
+\hfill
+\begin{minipage}[t]{0.40\textwidth}
+  \RaggedLeft\small\color{textmuted}
+  $if(location)$$location$, $endif$$if(date)$$date$$endif$
+\end{minipage}
+
+\vspace{0.45cm}
+
+% ==========================================
+% BETREFFZEILE
+% ==========================================
+$if(subject)$
+{\large\bfseries\color{accent} $subject$}\par
+\vspace{0.25cm}
+$endif$
+
+% ==========================================
+% ANREDE & BRIEFTEXT
+% ==========================================
+$if(opening)$
+{\normalsize\color{textdark} $opening$}\par
+\vspace{0.12cm}
+$endif$
+
+{\normalsize\color{textdark}
+$body$
+}
+
+\vspace{0.35cm}
+
+% ==========================================
+% GRUSSFORMEL & UNTERSCHRIFT
+% ==========================================
+\begin{minipage}{\textwidth}
+  $if(closing)${\normalsize\color{textdark}$closing$}\par\vspace{0.45cm}$endif$
+  {\bfseries\color{accent} $if(firstname)$$firstname$$endif$ $if(lastname)$$lastname$$endif$}\par
+  {\small\color{textmuted} $if(title)$$title$$endif$}
+\end{minipage}
+
+% ==========================================
+% BEILAGENVERMERK
+% ==========================================
+$if(enclosures)$
+\vspace{0.35cm}
+{\footnotesize\color{textmuted}\textbf{Beilagen:} $enclosures$}
+$endif$
+
+\end{document}
