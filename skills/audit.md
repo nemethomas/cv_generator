@@ -13,4 +13,5 @@ $$\text{Trust-Score} = (T \times 0.25) + (A \times 0.25) + (F \times 0.30) + (P 
 
 ## Aufruf
 - In der CLI: `/audit` (prüft Standard-Lebenslauf `src/cv-example.md`) oder `/audit <name>`.
+- Dossier synchronisieren (OCR & PDF-Import): `/audit sync` oder `python3 skills/audit/sync_dossier.py`.
 - Tiefenprüfung: `/audit full` oder `/audit <name> full`.

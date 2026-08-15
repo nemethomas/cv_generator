@@ -100,13 +100,14 @@ make all
 
 # Dokumente für ein bestimmtes Ziel / Unternehmen bauen
 make <firma>
+make example
 
 # Nur Lebenslauf oder nur Anschreiben bauen
 make cv-<firma>
 make letter-<firma>
 
-# Standard-Lebenslauf bauen
-make standard
+# Nachweise & Zeugnisse synchronisieren (OCR & Aufbau docs/dossier.md)
+make dossier
 ```
 
 ### Manuelle Kompilierung via Pandoc
@@ -146,14 +147,15 @@ Das Projekt beinhaltet spezialisierte Skills zur automatisierten Suche, Prüfung
 
 ## Workflow: Vom Job-Scouting zum fertigen Dossier
 
-1. **Passende Stellen finden:** `/scout` oder `/scout "Data Scientist"` ausführen, um Vakanzen in Zürich zu identifizieren.
-2. **Stelleninserat importieren:** Ausgewähltes Inserat als `jobs/<firma>.md` abspeichern.
-3. **Dokumente erstellen:** Markdown-Dateien `src/cv-<firma>.md` und `src/letter-<firma>.md` anlegen (z. B. auf Basis von `src/cv-standard.md`).
-4. **Qualität prüfen:** 
+1. **Nachweise bereitstellen:** PDFs unter `docs/` ablegen und einmalig `make dossier` ausführen (generiert die durchsuchbare `docs/dossier.md` via OCR).
+2. **Passende Stellen finden:** `/scout` oder `/scout "Data Scientist"` ausführen, um Vakanzen in Zürich zu identifizieren.
+3. **Stelleninserat importieren:** Ausgewähltes Inserat als `jobs/<firma>.md` abspeichern.
+4. **Dokumente erstellen:** Markdown-Dateien `src/cv-<firma>.md` und `src/letter-<firma>.md` anlegen (z. B. auf Basis von `src/cv-example.md`).
+5. **Qualität prüfen:** 
    - Rechtschreibung prüfen mit Skill `spell`
    - Passgenauigkeit prüfen mit Skill `fit`
    - Nachweise abgleichen mit Skill `audit`
-5. **PDFs generieren:** `make <firma>` ausführen. Die Dokumente werden in `dist/` abgelegt und zur Prüfung geöffnet.
+6. **PDFs generieren:** `make <firma>` ausführen. Die Dokumente werden in `dist/` abgelegt und zur Prüfung geöffnet.
 
 ---
 

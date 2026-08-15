@@ -15,10 +15,14 @@ CV_PDFS = $(patsubst $(SRC_DIR)/cv-%.md, $(DIST_DIR)/cv-%.pdf, $(CV_SRCS))
 LETTER_PDFS = $(patsubst $(SRC_DIR)/letter-%.md, $(DIST_DIR)/letter-%.pdf, $(LETTER_SRCS))
 PDFS = $(CV_PDFS) $(LETTER_PDFS)
 
-.PHONY: all clean example cv-example letter-example
+.PHONY: all clean example cv-example letter-example dossier sync
 
 # Standard: alle vorhandenen Dokumente bauen
 all: $(PDFS)
+
+# Dossier-Synchronisation (OCR & Aggregation aller Nachweise in docs/dossier.md)
+dossier sync:
+	@python3 skills/audit/sync_dossier.py
 
 # Standard-Beispieldokumente
 example: $(DIST_DIR)/cv-example.pdf $(DIST_DIR)/letter-example.pdf

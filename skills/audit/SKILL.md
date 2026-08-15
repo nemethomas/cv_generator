@@ -20,18 +20,20 @@ $$\text{Trust-Score} = (T \times 0.25) + (A \times 0.25) + (F \times 0.30) + (P 
 
 ## Performance-optimierter Workflow
 
-Um die Analyse schnell und ressourcenschonend durchzuführen:
+Um die Analyse ultraschnell, ressourcenschonend und lückenlos durchzuführen:
 
-1. **Ziel-Lebenslauf identifizieren:**
-   - Standardmässig **eine** Zieldatei prüfen (angegebenes Argument, z. B. `src/cv-example.md` oder eine spezifische Datei). Nicht mehrere CVs gleichzeitig prüfen, ausser explizit verlangt.
+1. **Zentrales Dossier (`docs/dossier.md`):**
+   - Das zentrale Dossier bündelt alle 26 Nachweise, Diplome und Zeugnistranskripte (inkl. OCR-Texte) in einer einzigen Datei.
+   - Falls neue PDFs in `docs/` abgelegt werden, kann das Dossier jederzeit via `/audit sync` oder `python3 skills/audit/sync_dossier.py` aktualisiert werden.
 
-2. **Gezielte Dateiauswahl (Targeted / On-Demand Loading):**
-   - **Nicht** alle PDFs blind einlesen!
-   - **Dateinamen-Mapping nutzen:** Diplome und Zertifikate (`docs/ausbildung/`, `docs/zertifikate/`, `docs/sprachen/`) sind anhand der Dateinamen direkt verifizierbar (z. B. `2024_CAS_Zertifikat.pdf`, `IREB_Requirements_Engineering.pdf`).
-   - **Arbeitszeugnisse gezielt öffnen:** Nur die für die jeweiligen Arbeitgeber relevanten Zeugnisse aus `docs/zeugnisse/` einlesen.
+2. **Ziel-Lebenslauf identifizieren:**
+   - Standardmässig die angegebene Zieldatei prüfen (z. B. `src/cv-example.md` oder ein spezifischer CV).
 
-3. **Exception-Driven Reporting (Fokus auf Relevantes):**
-   - Statt 50+ Zeilen für jede unstrittige Einzelaussage auszugeben, konzentriert sich der Bericht auf Scores, Bestätigungen und **konkrete Diskrepanzen/Gaps**.
+3. **Direkter Abgleich gegen `docs/dossier.md`:**
+   - Abgleich aller Stationen, Aufgaben, Systeme (Oracle, SQL, PL/SQL, Python, SYRIUS, IAM, ETL) und Bildungsabschlüsse direkt gegen den Volltext in `docs/dossier.md`.
+
+4. **Exception-Driven Reporting (Fokus auf Relevantes):**
+   - Bericht konzentriert sich auf Scores, Bestätigungen und **konkrete Diskrepanzen/Gaps**.
 
 ---
 
