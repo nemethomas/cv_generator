@@ -1,6 +1,7 @@
 # Sensitive / Private Daten & Dokumente
 docs/
 jobs/
+src/
 
 # Generierte Build-Artefakte
 dist/
