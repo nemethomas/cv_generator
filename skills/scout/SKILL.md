@@ -1,11 +1,21 @@
 ---
 name: scout
-description: Durchsucht Schweizer Stellenportale (jobs.ch API) sowie Karriereportale nach passenden IT-, Business-Engineering- und Data-Science-Positionen im Grossraum Zürich, filtert nach Blacklist (RUAG) und Whitelist (Swisscom, ZKB, Google, Zühlke, Inventx), prüft den Pensum-Filter (>= 60%) und berechnet einen Evidence-Match-Score anhand der Arbeitszeugnisse und des Profils.
+description: Durchsucht Schweizer Stellenportale (jobs.ch API, LinkedIn/Indeed via JobSpy, SwissDevJobs) nach passenden IT-, Business-Engineering- und Data-Science-Positionen im Grossraum Zürich, filtert nach Blacklist (RUAG), prüft den Pensum-Filter (>= 60%) und berechnet einen reinen Evidence-Match-Score anhand der Arbeitszeugnisse und des Profils.
 ---
 
 # Skill: Job Scout & Evidence Matcher (scout)
 
-Dieser Skill automatisiert die Suche, Filterung und Bewertung passender Stellenangebote im Grossraum Zürich auf Basis deines echten Leistungsprofils und deiner Arbeitszeugnisse in `docs/`.
+Dieser Skill automatisiert die Multi-Source-Suche, Filterung und Bewertung passender Stellenangebote im Grossraum Zürich über mehrere Portale (jobs.ch, LinkedIn, Indeed, SwissDevJobs) auf Basis deines echten Leistungsprofils und deiner Arbeitszeugnisse in `docs/`.
+
+---
+
+## 📡 Unterstützte Quellen (Provider-Architektur)
+
+1. **`jobs.ch` (JobCloud API):** Direkte, tagesaktuelle Schweizer Unternehmensabdeckung (Banken, Versicherungen, Behörden, KMUs).
+2. **`JobSpy` (LinkedIn, Indeed, Glassdoor):** Moderne Tech- & Data-Rollen, Scale-ups und internationale Konzerne.
+3. **`SwissDevJobs`:** Spezialisierter Schweizer Tech- & Entwickler-Feed.
+
+Die Quellen können in `skills/scout/config.json` modular aktiviert oder deaktiviert werden.
 
 ---
 
@@ -17,14 +27,7 @@ Dieser Skill automatisiert die Suche, Filterung und Bewertung passender Stellena
    - Mindestens **60 %** (60–100 %).
 3. **Zielrollen:**
    - *Business Engineer, Requirements Engineer, IT Business Analyst, Solution Designer, Data Engineer, Data Scientist, Product Owner, Technical Consultant*.
-4. **Whitelist-Unternehmen (⭐ Priorisiert mit +15 % Bonus):**
-   - **Swisscom**
-   - **Zürcher Kantonalbank (ZKB)**
-   - **Google Switzerland**
-   - **Zühlke Informatik**
-   - **Inventx**
-   - **Migros** (inkl. MGB, Migros Bank, Migros IT Services)
-5. **Blacklist-Unternehmen (🚫 Kategorischer Ausschluss):**
+4. **Blacklist-Unternehmen (🚫 Kategorischer Ausschluss):**
    - **RUAG** (inkl. aller Sparten wie MRO, Defence, Space).
 
 ---
@@ -36,9 +39,8 @@ Jede gefundene Stelle wird gegen deine realen Nachweise und Zeugnisse bewertet:
 | Kriterium | Gewicht | Prüfung gegen `docs/` & Profil |
 | :--- | :---: | :--- |
 | **Tech- & Domain-Stack** | **40 %** | Praxisnachweis in Zeugnissen (SQL, Oracle, PL/SQL, Python, SYRIUS, Data Engineering, Data Science, Machine Learning, ETL, DWH, IAM, Berechtigungen). |
-| **Rollen- & Aufgaben-Fit** | **35 %** | Übereinstimmung mit Aufgaben (Business Engineering, Requirements Engineering, BPMN, Use Cases, Migration, Solution Design). |
-| **Ausbildung & Diplome** | **10 %** | Bestätigte Abschlüsse (CAS Data Engineering, CAS Business Analysis, CAS Projektmanagement, IREB, IPMA, ITIL, EFZ/Maturität). |
-| **Whitelist-Bonus** | **15 %** | **+15 %** für Stellen bei *Swisscom, ZKB, Google, Zühlke Informatik, Inventx*. |
+| **Rollen- & Aufgaben-Fit** | **40 %** | Übereinstimmung mit Aufgaben (Business Engineering, Requirements Engineering, BPMN, Use Cases, Migration, Solution Design). |
+| **Ausbildung & Zertifikate** | **20 %** | Bestätigte Abschlüsse (CAS Data Engineering, CAS Business Analysis, CAS Projektmanagement, IREB, IPMA, ITIL, EFZ/Maturität). |
 
 ---
 

@@ -41,9 +41,13 @@ $(DIST_DIR)/letter-%.pdf: $(SRC_DIR)/letter-%.md $(LETTER_TEMPLATE)
 	pandoc $< --template=$(LETTER_TEMPLATE) --pdf-engine=$(ENGINE) -o $@
 	@echo "✓ Generiert: $@"
 
-# Dynamische Kurz-Targets für beliebige Ziele (z. B. make cv-<name>, make letter-<name>)
+# Dynamische Kurz-Targets für beliebige Ziele (z. B. make cv-<name>, make letter-<name>, make <name>)
 cv-%: $(DIST_DIR)/cv-%.pdf ;
 letter-%: $(DIST_DIR)/letter-%.pdf ;
+
+%:
+	@if [ -f "$(SRC_DIR)/cv-$@.md" ]; then $(MAKE) --no-print-directory $(DIST_DIR)/cv-$@.pdf; fi
+	@if [ -f "$(SRC_DIR)/letter-$@.md" ]; then $(MAKE) --no-print-directory $(DIST_DIR)/letter-$@.pdf; fi
 
 clean:
 	rm -rf $(DIST_DIR)/*.pdf

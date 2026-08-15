@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """
 Job Scout & Match Analyzer for Swiss Job Market (Zürich & Agglomeration).
-Searches portals (jobs.ch API) and company career endpoints, applies Black-/Whitelist filters,
-and calculates Evidence Match Scores against work certificates (docs/) and profile (src/cv-standard.md).
+Multi-Source Architecture: jobs.ch, LinkedIn/Indeed/Glassdoor (JobSpy), SwissDevJobs.
+Calculates Evidence Match Scores against work certificates (docs/) and profile (src/cv-standard.md).
 """
 
 import sys
@@ -11,23 +11,23 @@ import re
 import json
 import html
 import argparse
-import urllib.request
-import urllib.error
-import urllib.parse
 from pathlib import Path
+from typing import List, Optional, Dict, Any, Tuple
+
+# Ensure scout directory is in sys.path for provider imports
+SCOUT_DIR = Path(__file__).resolve().parent
+if str(SCOUT_DIR) not in sys.path:
+    sys.path.insert(0, str(SCOUT_DIR))
+
+from providers import get_enabled_providers, fetch_full_job_data
+from providers.base import JobItem
 
 BASE_DIR = Path(__file__).resolve().parents[2]
-CONFIG_FILE = Path(__file__).resolve().parent / "config.json"
+CONFIG_FILE = SCOUT_DIR / "config.json"
 JOBS_DIR = BASE_DIR / "jobs"
 
-HEADERS = {
-    "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
-    "Accept": "application/json, text/plain, */*",
-    "Accept-Language": "de-CH,de;q=0.9,en;q=0.8"
-}
 
-
-def load_config():
+def load_config() -> Dict[str, Any]:
     """Load configuration from config.json or use sensible defaults."""
     if CONFIG_FILE.exists():
         try:
@@ -36,6 +36,11 @@ def load_config():
         except Exception as e:
             print(f"Warnung: Konfiguration konnte nicht geladen werden: {e}", file=sys.stderr)
     return {
+        "sources": {
+            "jobsch": {"enabled": True, "max_pages": 4},
+            "jobspy": {"enabled": True, "sites": ["linkedin", "indeed"], "results_wanted": 15},
+            "swissdevjobs": {"enabled": True}
+        },
         "location": {
             "primary": "Zürich",
             "allowed_regions": ["Zürich", "Altstetten", "Dietikon", "Dübendorf", "Wallisellen"]
@@ -46,12 +51,14 @@ def load_config():
             {"name": "Zürcher Kantonalbank", "aliases": ["ZKB", "Zürcher Kantonalbank AG", "Zürcher Kantonalbank"], "career_url": "https://www.zkb.ch/karriere"},
             {"name": "Google", "aliases": ["Google", "Google Switzerland", "Google Switzerland GmbH", "Google Inc."], "career_url": "https://careers.google.com"},
             {"name": "Zühlke Informatik", "aliases": ["Zühlke", "Zühlke Engineering AG", "Zühlke Group", "Zuehlke"], "career_url": "https://www.zuehlke.com/de/karriere"},
-            {"name": "Inventx", "aliases": ["Inventx", "Inventx AG", "Inventix"], "career_url": "https://inventx.ch/karriere"}
+            {"name": "Inventx", "aliases": ["Inventx", "Inventx AG", "Inventix"], "career_url": "https://inventx.ch/karriere"},
+            {"name": "ELCA", "aliases": ["Elca informatique SA", "ELCA AG", "ELCA Group", "ELCA Cloud Services SA", "ELCA Security SA", "ELCA"], "career_url": "https://www.elca.ch/de/karriere"}
         ],
         "blacklist_companies": ["RUAG", "RUAG MRO Holding", "RUAG Defence", "RUAG Space", "RUAG AG"],
         "target_roles": [
             "Business Engineer", "Requirements Engineer", "IT Business Analyst",
-            "Solution Designer", "Data Engineer", "Data Scientist", "Product Owner", "Technical Consultant"
+            "Solution Designer", "Solution Engineer", "Data Engineer", "Data Scientist", "Product Owner", "Technical Consultant",
+            "Input Engineer", "Output Management", "Dokumentenmanagement", "ECM"
         ],
         "core_competencies": [
             "Oracle", "SQL", "PL/SQL", "Python", "SYRIUS", "ETL", "DWH",
@@ -62,7 +69,7 @@ def load_config():
     }
 
 
-def is_blacklisted(company_name, blacklist):
+def is_blacklisted(company_name: str, blacklist: List[str]) -> bool:
     """Check if company name matches any blacklisted entry."""
     if not company_name:
         return False
@@ -74,7 +81,7 @@ def is_blacklisted(company_name, blacklist):
     return False
 
 
-def is_whitelisted(company_name, whitelist_companies):
+def is_whitelisted(company_name: str, whitelist_companies: List[Dict[str, Any]]) -> Tuple[bool, Optional[str]]:
     """Check if company name matches any whitelisted company or alias."""
     if not company_name:
         return False, None
@@ -91,7 +98,7 @@ def is_whitelisted(company_name, whitelist_companies):
     return False, None
 
 
-def is_location_allowed(place, allowed_regions):
+def is_location_allowed(place: str, allowed_regions: List[str]) -> bool:
     """Verify if place is in allowed agglomeration list."""
     if not place:
         return True
@@ -99,245 +106,173 @@ def is_location_allowed(place, allowed_regions):
     for region in allowed_regions:
         if region.lower() in p_lower:
             return True
-    if "zürich" in p_lower or "zurich" in p_lower or "zh" in p_lower:
+    if "zürich" in p_lower or "zurich" in p_lower or "zh" in p_lower or "switzerland" in p_lower:
         return True
     return False
 
 
-def fetch_json(url, params=None):
-    """Fetch JSON from a URL with parameters."""
-    if params:
-        query_string = urllib.parse.urlencode(params)
-        full_url = f"{url}?{query_string}"
-    else:
-        full_url = url
-    try:
-        req = urllib.request.Request(full_url, headers=HEADERS)
-        with urllib.request.urlopen(req, timeout=12) as response:
-            if response.status == 200:
-                return json.loads(response.read().decode("utf-8"))
-    except Exception as e:
-        return None
-    return None
-
-
-def fetch_job_detail(job_id):
-    """Fetch complete detail of a job from jobs.ch API."""
-    url = f"https://www.jobs.ch/api/v1/public/search/job/{job_id}"
-    return fetch_json(url)
-
-
-def clean_html(raw_html):
-    """Remove HTML tags and entities."""
-    if not raw_html:
-        return ""
-    # Unescape HTML entities first (&uuml; -> ü, etc.)
-    unescaped = html.unescape(raw_html)
-    # Add newlines for block elements
-    formatted = re.sub(r'<(p|br|div|li|h[1-6])[^>]*>', '\n', unescaped, flags=re.IGNORECASE)
-    # Strip remaining tags
-    clean = re.sub(r'<[^<]+?>', ' ', formatted)
-    # Clean whitespace
-    lines = [line.strip() for line in clean.split('\n') if line.strip()]
-    return '\n\n'.join(lines)
-
-
-def calculate_match_score(title, description, company_name, config):
+def calculate_match_score(title: str, description: str, company_name: str, config: Dict[str, Any]) -> Tuple[int, List[str], bool, Optional[str]]:
     """
     Calculate an evidence match score (0-100%) against CV profile and certificates.
-    Profile strengths:
-      - Oracle, SQL, PL/SQL, ETL, DWH, Python, Data Engineering, Data Science, Machine Learning
-      - SYRIUS, Migration, Versicherung (Leistungen, Bestand), Inputmanagement
-      - Requirements Engineering, BPMN, IREB, CAS BA, CAS PM, ITIL, IPMA
-      - IAM, Berechtigungen, Access Management, Unix/Linux, REST APIs
+    Weights:
+      - Base / Role & Geographic Fit: 40%
+      - Tech- & Domain-Stack: up to 40%
+      - Education & Certificates: up to 20%
     """
     text = f"{title} {description} {company_name}".lower()
-    score = 45  # Base score for matching geographic and role filters
+    score = 40  # Base score for role and regional relevance
 
     # Tech & Domain skills matching (up to +40)
     tech_keywords = {
         "sql": 7, "oracle": 7, "pl/sql": 6, "python": 6,
-        "data engineering": 8, "data scientist": 8, "data science": 8, "machine learning": 6,
+        "data engineer": 8, "data engineering": 8, "data scientist": 8, "data science": 8, "machine learning": 6,
+        "data modeling": 6, "datenmodellierung": 6, "data model": 6, "bi": 5,
+        "dbt": 6, "bigquery": 6, "airflow": 6, "cloud": 5, "azure": 6, "gcp": 6, "aws": 5,
         "etl": 6, "dwh": 6, "data warehouse": 6, "elasticsearch": 4, "kibana": 4,
         "syrius": 9, "migration": 6, "versicherung": 5, "krankenversicherung": 5,
         "input engineer": 8, "dokumentenmanagement": 8, "inputmanagement": 8, "input management": 8,
-        "dms": 6, "oms": 6, "ecm": 6, "archiv": 5, "kodak": 5, "docprostar": 5,
+        "input": 6, "output": 6, "output-management": 8, "outputmanagement": 8, "output management": 8,
+        "enterprise content management": 8, "iim": 6, "informationsmanagement": 6,
+        "dms": 6, "oms": 6, "ecm": 6, "archiv": 5, "archivierung": 6, "kodak": 5, "docprostar": 5,
         "business analyst": 8, "business analysis": 8, "business analyse": 8,
         "business engineer": 8, "business engineering": 8,
+        "solution engineer": 8, "solution engineering": 8,
         "requirements engineer": 7, "requirements engineering": 7, "anforderungsmanagement": 6,
         "solution designer": 7, "solution design": 7, "product owner": 6,
-        "use cases": 4, "user stories": 4, "bpmn": 4,
+        "use cases": 4, "user stories": 4, "bpmn": 4, "bpm": 4, "prozessmanagement": 5, "business process": 5,
         "access management": 7, "identity": 6, "ciam": 6, "iam": 6, "berechtigung": 5, "rollenmodell": 5,
-        "api": 4, "rest": 4, "linux": 3, "unix": 3, "devops": 4
+        "api": 4, "rest": 4, "linux": 3, "unix": 3, "devops": 4,
+        "tomcat": 4, "wildfly": 4, "jboss": 4
     }
 
     matched_tech = []
     tech_points = 0
     for kw, pts in tech_keywords.items():
-        if re.search(r'\b' + re.escape(kw) + r'\b', text):
+        if re.search(r'(?:^|[\s\-_/,\.;:\(\)\[\]])' + re.escape(kw) + r'(?:$|[\s\-_/,\.;:\(\)\[\]])', text):
             tech_points += pts
             matched_tech.append(kw)
     score += min(40, tech_points)
 
-    # Education & Certification matching (up to +10)
+    # Education & Certification matching (up to +20)
     edu_keywords = {
-        "cas": 5, "mas": 4, "bachelor": 4, "master": 4, "hochschule": 3, "fachhochschule": 3, "zhaw": 4,
-        "ireb": 5, "ipma": 4, "itil": 4, "scrum": 3, "agil": 3
+        "cas": 7, "mas": 5, "bachelor": 5, "master": 5, "hochschule": 4, "fachhochschule": 4, "zhaw": 5,
+        "studium": 4, "informatik": 5, "computer science": 5, "fh": 3, "uni": 3, "eth": 3,
+        "ireb": 7, "ipma": 6, "itil": 5, "scrum": 4, "agil": 3
     }
+    edu_points = 0
     for kw, pts in edu_keywords.items():
-        if re.search(r'\b' + re.escape(kw) + r'\b', text):
-            score += pts
+        if re.search(r'(?:^|[\s\-_/,\.;:\(\)\[\]])' + re.escape(kw) + r'(?:$|[\s\-_/,\.;:\(\)\[\]])', text):
+            edu_points += pts
             matched_tech.append(kw)
-            break
+    score += min(20, edu_points)
 
-    # Whitelist Bonus (+15)
     is_white, white_name = is_whitelisted(company_name, config.get("whitelist_companies", []))
-    if is_white:
-        score += 15
-
-    final_score = min(98, max(45, score))
+    final_score = min(100, max(40, score))
     return final_score, list(set(matched_tech)), is_white, white_name
 
 
-def search_jobs(query=None, whitelist_only=False, max_results=12):
-    """Search jobs.ch for positions matching criteria."""
+def generate_dedup_key(company: str, title: str) -> Tuple[str, str]:
+    """Generate normalized tuple key for cross-portal deduplication."""
+    clean_company = re.sub(r'[^a-z0-9]', '', company.lower().strip())
+    # Strip common suffixes/prefixes (pensum, gender markers, level)
+    norm_title = re.sub(r'[\(\[\{].*?[\)\]\}]', '', title.lower())
+    norm_title = re.sub(r'\b(m/w/d|80-100%|100%|80%|senior|junior|lead)\b', '', norm_title)
+    clean_title = re.sub(r'[^a-z0-9]', '', norm_title.strip())
+    return clean_company, clean_title
+
+
+def search_jobs(query: Optional[str] = None, whitelist_only: bool = False, max_results: int = 15) -> List[JobItem]:
+    """
+    Search all enabled providers (jobs.ch, JobSpy, SwissDevJobs),
+    apply filters, deduplicate cross-portal listings, and calculate Evidence Match Scores.
+    """
     config = load_config()
     allowed_regions = config.get("location", {}).get("allowed_regions", ["Zürich"])
     blacklist = config.get("blacklist_companies", [])
     whitelist = config.get("whitelist_companies", [])
-    target_roles = config.get("target_roles", ["Business Engineer"])
     primary_loc = config.get("location", {}).get("primary", "Zürich")
 
-    queries_to_run = []
-    if query:
-        # User supplied explicit query
-        queries_to_run = [f"{query} {primary_loc}"]
-    elif whitelist_only:
-        # Search specifically for whitelist companies
-        for w in whitelist:
-            queries_to_run.append(f"{w['name']} {primary_loc}")
-            for role in ["Engineer", "Data", "Business Analyst"]:
-                queries_to_run.append(f"{w['name']} {role}")
-    else:
-        # Standard search for target roles
-        for r in target_roles:
-            queries_to_run.append(f"{r} {primary_loc}")
-        # Add whitelist companies to search batch
-        for w in whitelist:
-            queries_to_run.append(f"{w['name']} {primary_loc}")
+    target_roles = [query] if query else config.get("target_roles", ["Business Engineer"])
+    providers = get_enabled_providers(config)
 
-    all_jobs = []
-    seen_ids = set()
-    search_url = "https://www.jobs.ch/api/v1/public/search"
+    raw_items: List[JobItem] = []
+    for provider in providers:
+        try:
+            items = provider.search(target_roles=target_roles, location=primary_loc)
+            raw_items.extend(items)
+        except Exception as e:
+            print(f"Fehler bei Provider {provider.name}: {e}", file=sys.stderr)
 
-    for q in queries_to_run:
-        # For whitelist queries or target queries, fetch up to 4 pages (80 jobs per company/term)
-        is_company_query = any(w["name"].lower() in q.lower() for w in whitelist)
-        max_pages = 4 if (whitelist_only or is_company_query) else 2
+    # Process, filter, score and deduplicate
+    dedup_dict: Dict[Tuple[str, str], JobItem] = {}
 
-        for page in range(1, max_pages + 1):
-            params = {
-                "query": q,
-                "rows": 20,
-                "page": page
-            }
-            res = fetch_json(search_url, params=params)
-            if not res or "documents" not in res:
-                break
+    for item in raw_items:
+        # 1. Blacklist check
+        if is_blacklisted(item.company, blacklist):
+            continue
 
-            docs = res.get("documents", [])
-            if not docs:
-                break
+        # 2. Location check
+        if not is_location_allowed(item.place, allowed_regions):
+            continue
 
-            for doc in docs:
-                job_id = doc.get("job_id")
-                if not job_id or job_id in seen_ids:
-                    continue
-                seen_ids.add(job_id)
+        # 3. Whitelist-only filter check
+        is_white, white_name = is_whitelisted(item.company, whitelist)
+        if whitelist_only and not is_white:
+            continue
 
-                company = doc.get("company_name", "Unbekannt")
-                title = doc.get("title", "")
-                place = doc.get("place", "")
+        item.is_whitelist = is_white
+        item.whitelist_name = white_name
 
-                # 1. Blacklist check
-                if is_blacklisted(company, blacklist):
-                    continue
+        # Calculate score
+        desc_to_score = item.description_full or item.preview or ""
+        score, matched_kws, _, _ = calculate_match_score(
+            item.title, desc_to_score, item.company, config
+        )
+        item.match_score = score
+        item.matched_keywords = matched_kws
 
-                # 2. Location check
-                if not is_location_allowed(place, allowed_regions):
-                    continue
+        # Cross-portal deduplication
+        dedup_key = generate_dedup_key(item.company, item.title)
+        if dedup_key in dedup_dict:
+            existing = dedup_dict[dedup_key]
+            # Merge sources if found across multiple portals
+            if item.source not in existing.source:
+                existing.source = f"{existing.source}, {item.source}"
+            # Keep highest score / richer description
+            if item.match_score > existing.match_score:
+                existing.match_score = item.match_score
+            if item.description_full and not existing.description_full:
+                existing.description_full = item.description_full
+        else:
+            dedup_dict[dedup_key] = item
 
-                # 3. Whitelist-only filter check
-                is_white, white_name = is_whitelisted(company, whitelist)
-                if whitelist_only and not is_white:
-                    continue
-
-                # Extract basic preview description
-                preview = doc.get("preview", "")
-                publication_date = doc.get("publication_date", "")[:10]
-                job_url = f"https://www.jobs.ch/de/stellenangebote/detail/{job_id}/"
-
-                score, matched_kws, is_white_match, matched_wh_name = calculate_match_score(
-                    title, preview, company, config
-                )
-
-                all_jobs.append({
-                    "id": job_id,
-                    "title": title,
-                    "company": company,
-                    "place": place,
-                    "date": publication_date,
-                    "url": job_url,
-                    "score": score,
-                    "is_whitelist": is_white_match,
-                    "whitelist_name": matched_wh_name,
-                    "keywords": matched_kws,
-                    "preview": preview
-                })
-
-            if len(docs) < 20:
-                # No more pages available
-                break
-
-    # Deduplicate by (company, title)
-    unique_jobs = []
-    seen_comp_title = set()
-    for j in all_jobs:
-        norm_title = re.sub(r'[\(\[\{].*?[\)\]\}]', '', j["title"]).strip().lower()
-        key = (j["company"].lower().strip(), norm_title)
-        if key not in seen_comp_title:
-            seen_comp_title.add(key)
-            unique_jobs.append(j)
-
-    # Sort by score descending (whitelist jobs receive a +15 score bonus and are marked with ⭐)
-    unique_jobs.sort(key=lambda x: x["score"], reverse=True)
-    return unique_jobs[:max_results]
+    results = list(dedup_dict.values())
+    # Sort descending by evidence match score
+    results.sort(key=lambda x: x.match_score, reverse=True)
+    return results[:max_results]
 
 
-def export_job_to_markdown(job_id_or_data, target_file=None):
+def export_job_to_markdown(job_id_or_data: Any, target_file: Optional[str] = None) -> Optional[Path]:
     """Download full job detail and export to markdown in jobs/ directory."""
     JOBS_DIR.mkdir(parents=True, exist_ok=True)
+    config = load_config()
 
     if isinstance(job_id_or_data, dict):
         job_id = job_id_or_data.get("id")
     else:
         job_id = str(job_id_or_data).strip()
 
-    detail = fetch_job_detail(job_id)
+    detail = fetch_full_job_data(job_id, config)
     if not detail:
         print(f"Fehler: Detaildaten für Job-ID '{job_id}' konnten nicht geladen werden.", file=sys.stderr)
         return None
 
     title = detail.get("title", "Stellenangebot")
-    company = detail.get("company_name", "Unternehmen")
+    company = detail.get("company_name", detail.get("company", "Unternehmen"))
     place = detail.get("place", "Zürich")
-    pub_date = detail.get("publication_date", "")[:10]
-    job_url = f"https://www.jobs.ch/de/stellenangebote/detail/{job_id}/"
-
-    # Extract template description
-    template = detail.get("template", "")
-    description_text = clean_html(template) if template else detail.get("preview", "")
-
+    pub_date = detail.get("publication_date", detail.get("date", ""))[:10]
+    job_url = detail.get("url", "")
+    description_text = detail.get("description", "")
     skills_list = detail.get("skills", [])
     skills_formatted = ", ".join(skills_list) if skills_list else "Nicht separat aufgeführt"
 
@@ -370,63 +305,34 @@ def export_job_to_markdown(job_id_or_data, target_file=None):
     return file_path
 
 
-def analyze_single_url(url):
-    """Analyze a single job posting URL."""
-    match = re.search(r'detail/([a-f0-9\-]+)', url)
-    if match:
-        job_id = match.group(1)
-        detail = fetch_job_detail(job_id)
-        if detail:
-            config = load_config()
-            title = detail.get("title", "")
-            company = detail.get("company_name", "")
-            place = detail.get("place", "")
-            desc = clean_html(detail.get("template", detail.get("preview", "")))
-            score, matched_kws, is_white, white_name = calculate_match_score(title, desc, company, config)
-
-            badge = "🟢" if score >= 80 else ("🟡" if score >= 65 else "🔴")
-            print(f"# 🎯 Job-Scout Einzelanalyse\n")
-            print(f"**Stelle:** {title}")
-            print(f"**Unternehmen:** {company} {'⭐ (Whitelist: ' + white_name + ')' if is_white else ''}")
-            print(f"**Standort:** {place}")
-            print(f"**Match-Score:** {badge} **{score} %**\n")
-            print(f"**Gefundene Profil-Keywords:** {', '.join(matched_kws[:10])}\n")
-            print(f"**Direktlink:** {url}\n")
-
-            saved_path = export_job_to_markdown(job_id)
-            if saved_path:
-                print(f"✓ Als Stellenprofil gespeichert unter: `{saved_path.relative_to(BASE_DIR)}`")
-                print(f"➡️ Du kannst nun `/fit {saved_path.stem}` oder `/make {saved_path.stem}` ausführen.")
-            return
-    print(f"Analysiere externe URL: {url}...")
-
-
 def main():
-    parser = argparse.ArgumentParser(description="Job Scout & Evidence Matcher")
+    parser = argparse.ArgumentParser(description="Job Scout & Evidence Matcher (Multi-Source)")
     parser.add_argument("query", nargs="?", default=None, help="Suchbegriff, Job-Rolle, Firma oder URL")
-    parser.add_argument("--whitelist", action="store_true", help="Nur Whitelist-Unternehmen (Swisscom, ZKB, Google, Zühlke, Inventx) durchsuchen")
-    parser.add_argument("--save", type=str, default=None, help="Job-ID oder Index zum Speichern in jobs/")
-    parser.add_argument("--limit", type=int, default=10, help="Anzahl der Treffer (Standard: 10)")
+    parser.add_argument("--whitelist", action="store_true", help="Nur Whitelist-Unternehmen durchsuchen")
+    parser.add_argument("--save", type=str, default=None, help="Job-ID zum Speichern in jobs/")
+    parser.add_argument("--limit", type=int, default=12, help="Anzahl der Treffer (Standard: 12)")
     args = parser.parse_args()
-
-    if args.query and (args.query.startswith("http://") or args.query.startswith("https://")):
-        analyze_single_url(args.query)
-        return
 
     if args.save:
         saved_file = export_job_to_markdown(args.save)
         if saved_file:
             print(f"✓ Stellenbeschreibung erfolgreich gespeichert: {saved_file}")
+            print(f"➡️ Du kannst nun `/fit {saved_file.stem}` oder `make {saved_file.stem}` ausführen.")
         return
 
-    print(f"# 🧭 Job Scout: Stellenangebote im Grossraum Zürich\n")
+    config = load_config()
+    sources_cfg = config.get("sources", {})
+    active_sources = [k for k, v in sources_cfg.items() if v.get("enabled", True)]
+
+    print(f"# 🧭 Job Scout: Multi-Source Stellenangebote (Grossraum Zürich)\n")
+    print(f"📡 **Aktive Quellen:** {', '.join(active_sources).upper()}")
     if args.whitelist:
-        print("🔍 **Modus:** Whitelist-Fokus (*Swisscom, ZKB, Google, Zühlke Informatik, Inventx*)")
+        print("🔍 **Modus:** Whitelist-Fokus (*Swisscom, ZKB, Google, Zühlke, Inventx, ELCA, Migros*)")
     elif args.query:
         print(f"🔍 **Suchbegriff:** `{args.query}` (Zürich & Agglo, Pensum >= 60%)")
     else:
         print("🔍 **Suchbereich:** Zürich, Altstetten, Dietikon, Dübendorf, Wallisellen (Pensum >= 60%)")
-        print("🎯 **Fokus:** Business Engineering, Data Engineering, Data Science, Requirements Engineering")
+        print("🎯 **Fokus:** Business Engineering, Data Engineering, Solution Engineering, ECM")
 
     print("🛡️ **Ausschluss:** RUAG (Blacklist aktiv)\n")
 
@@ -436,16 +342,14 @@ def main():
         print("ℹ️ Keine neuen offenen Stellen für die angegebenen Kriterien gefunden.")
         return
 
-    print("| # | Score | Stelle / Rolle | Unternehmen | Ort | Datum | Aktion |")
+    print("| # | Score | Stelle / Rolle | Unternehmen | Ort | Quelle | Aktion |")
     print("| :-: | :---: | :--- | :--- | :--- | :---: | :--- |")
     for idx, j in enumerate(jobs, 1):
-        badge = "🟢" if j["score"] >= 80 else ("🟡" if j["score"] >= 65 else "🔴")
-        wh_star = " ⭐" if j["is_whitelist"] else ""
-        comp_str = f"{j['company']}{wh_star}"
-        print(f"| {idx} | {badge} **{j['score']}%** | [{j['title']}]({j['url']}) | {comp_str} | {j['place']} | {j['date']} | `python3 skills/scout/search_jobs.py --save {j['id']}` |")
+        badge = "🟢" if j.match_score >= 80 else ("🟡" if j.match_score >= 65 else "🔴")
+        print(f"| {idx} | {badge} **{j.match_score}%** | [{j.title}]({j.url}) | {j.company} | {j.place} | `{j.source}` | `python3 skills/scout/search_jobs.py --save \"{j.id}\"` |")
 
     print("\n---\n")
-    print("💡 **Legende:** ⭐ = Whitelist-Unternehmen | 🟢 = Hoher Match (>=80%) | 🟡 = Moderater Match (65-79%)")
+    print("💡 **Legende:** 🟢 = Hoher Match (>=80%) | 🟡 = Moderater Match (65-79%) | 🔴 = Niedriger Match (<65%)")
     print("- **Stelle importieren:** Führe den Befehl in der Spalte `Aktion` aus, um das Inserat nach `jobs/` zu speichern.")
     print("- **Passgenauigkeit prüfen:** `/fit <firma>` berechnet den exakten Match gegen deinen Lebenslauf.")
     print("- **Lebenslauf generieren:** `make <firma>` erstellt dein massgeschneidertes PDF.")

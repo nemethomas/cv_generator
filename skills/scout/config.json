@@ -1,4 +1,19 @@
 {
+  "sources": {
+    "jobsch": {
+      "enabled": true,
+      "max_pages": 4
+    },
+    "jobspy": {
+      "enabled": true,
+      "sites": ["linkedin", "indeed"],
+      "results_wanted": 15
+    },
+    "swissdevjobs": {
+      "enabled": true,
+      "feed_url": "https://swissdevjobs.ch/api/jobsLight"
+    }
+  },
   "location": {
     "primary": "Zürich",
     "allowed_regions": [
@@ -43,6 +58,11 @@
       "name": "Migros",
       "aliases": ["Migros-Genossenschafts-Bund", "Migros Bank AG", "Migros Bank", "Migros", "MGB", "Migros IT Services", "Genossenschaft Migros Zürich"],
       "career_url": "https://jobs.migros.ch"
+    },
+    {
+      "name": "ELCA",
+      "aliases": ["Elca informatique SA", "ELCA AG", "ELCA Group", "ELCA Cloud Services SA", "ELCA Security SA", "ELCA"],
+      "career_url": "https://www.elca.ch/de/karriere"
     }
   ],
   "blacklist_companies": [
@@ -58,12 +78,15 @@
     "Requirements Engineer",
     "IT Business Analyst",
     "Solution Designer",
+    "Solution Engineer",
     "Data Engineer",
     "Data Scientist",
     "Product Owner",
     "Technical Consultant",
     "Input Engineer",
-    "Dokumentenmanagement"
+    "Output Management",
+    "Dokumentenmanagement",
+    "ECM"
   ],
   "core_competencies": [
     "Oracle",

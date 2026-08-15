@@ -44,6 +44,8 @@ node_modules/
 __pycache__/
 *.py[cod]
 *$py.class
+*.cache_jobs.json
+.cache_jobs.json
 
 # Editor & IDE Konfigurationen
 .vscode/
