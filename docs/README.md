@@ -2,7 +2,7 @@
 
 In diesem Ordner werden persönliche Nachweise, Diplome, Arbeitszeugnisse und Zertifikate abgelegt.
 
-Das integrierte OCR- und Sync-Werkzeug fasst alle Nachweise automatisch in einer einzigen, durchsuchbaren Markdown-Datei **`docs/dossier.md`** zusammen. Diese dient den Skills **`audit`**, **`fit`** und **`scout`** als blitzschnelle Evidenz-Basis.
+Das integrierte OCR- und Sync-Werkzeug fasst alle Nachweise automatisch in einer einzigen, durchsuchbaren Markdown-Datei **`docs/dossier.md`** zusammen und generiert daraus das dynamische Kandidatenprofil **`docs/profile.json`** (Zielrollen, Keyword-Wortwolke, Skill-Gewichte). Diese dienen den Skills **`audit`**, **`fit`** und **`scout`** als blitzschnelle Evidenz-Basis.
 
 ## Empfohlene Ordnerstruktur
 
@@ -15,17 +15,14 @@ Das integrierte OCR- und Sync-Werkzeug fasst alle Nachweise automatisch in einer
 
 Sobald neue PDF-Dokumente abgelegt wurden:
 ```bash
-# Via Make:
+# Via Make (empfohlen):
 make dossier
 # oder
 make sync
 
 # Via Python direkt:
-python3 skills/audit/sync_dossier.py
-
-# Via Opencode-Befehl:
-/audit sync
+python3 scripts/sync_dossier.py
 ```
-Das Skript erkennt automatisch, ob Text im PDF vorliegt oder führt via nativer macOS Apple Vision Engine eine lokale OCR-Textextraktion durch.
+Das Skript erkennt automatisch, ob Text im PDF vorliegt oder führt via nativer macOS Apple Vision Engine eine lokale OCR-Textextraktion durch. Anschliessend wird vollautomatisch `docs/profile.json` für die Jobsuche und das Scoring aktualisiert.
 
-> **Sicherheitshinweis:** Der Ordner `docs/` sowie die generierte `docs/dossier.md` enthalten vertrauliche Personendaten und sind in der `.gitignore` vollständig geschützt.
+> **Sicherheitshinweis:** Der Ordner `docs/` sowie die generierten Dateien `docs/dossier.md` und `docs/profile.json` enthalten vertrauliche Personendaten und sind in der `.gitignore` vollständig geschützt.

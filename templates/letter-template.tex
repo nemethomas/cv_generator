@@ -28,6 +28,7 @@
 
 % Pakete
 \usepackage[dvipsnames]{xcolor}
+\usepackage{graphicx}
 \usepackage{fontawesome5}
 \usepackage[hidelinks]{hyperref}
 \usepackage{microtype}
@@ -73,30 +74,33 @@
 \vspace{0.45cm}
 
 % ==========================================
-% EMPFÄNGER-ADRESSE & DATUM
+% EMPFÄNGER-ADRESSE
 % ==========================================
-\begin{minipage}[t]{0.55\textwidth}
+\begin{minipage}[t]{\textwidth}
   \small\color{textdark}
-  $if(recipient.company)${\textbf{$recipient.company$}}\\$endif$
-  $if(recipient.department)$$recipient.department$\\$endif$
-  $if(recipient.contact)$$recipient.contact$\\$endif$
-  $if(recipient.street)$$recipient.street$\\$endif$
-  $if(recipient.city)$$recipient.city$$endif$
-\end{minipage}
-\hfill
-\begin{minipage}[t]{0.40\textwidth}
-  \RaggedLeft\small\color{textmuted}
-  $if(location)$$location$, $endif$$if(date)$$date$$endif$
+  $if(recipient.company)${\textbf{$recipient.company$}}\\$endif$$if(recipient.department)$
+  $recipient.department$\\$endif$$if(recipient.contact)$
+  $recipient.contact$\\$endif$$if(recipient.street)$
+  $recipient.street$\\$endif$$if(recipient.city)$
+  $recipient.city$$endif$
 \end{minipage}
 
-\vspace{0.45cm}
+\vspace{0.75cm}
+
+% ==========================================
+% ORT & DATUM (linksbündig)
+% ==========================================
+$if(date)$
+{\small\color{textmuted}$if(location)$$location$, $endif$$date$}\par
+\vspace{0.55cm}
+$endif$
 
 % ==========================================
 % BETREFFZEILE
 % ==========================================
 $if(subject)$
 {\large\bfseries\color{accent} $subject$}\par
-\vspace{0.25cm}
+\vspace{0.4cm}
 $endif$
 
 % ==========================================
@@ -104,7 +108,7 @@ $endif$
 % ==========================================
 $if(opening)$
 {\normalsize\color{textdark} $opening$}\par
-\vspace{0.12cm}
+\vspace{0.18cm}
 $endif$
 
 {\normalsize\color{textdark}
@@ -117,7 +121,12 @@ $body$
 % GRUSSFORMEL & UNTERSCHRIFT
 % ==========================================
 \begin{minipage}{\textwidth}
-  $if(closing)${\normalsize\color{textdark}$closing$}\par\vspace{0.45cm}$endif$
+  $if(closing)${\normalsize\color{textdark}$closing$}\par\vspace{0.25cm}$endif$
+  $if(signature)$
+    \includegraphics[height=1.22cm]{$signature$}\par\vspace{0.12cm}
+  $else$
+    \vspace{0.45cm}
+  $endif$
   {\bfseries\color{accent} $if(firstname)$$firstname$$endif$ $if(lastname)$$lastname$$endif$}\par
   {\small\color{textmuted} $if(title)$$title$$endif$}
 \end{minipage}

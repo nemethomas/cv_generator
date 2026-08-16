@@ -2,6 +2,7 @@
 docs/**/*
 !docs/**/
 !docs/README.md
+!docs/profile.example.json
 !docs/**/.gitkeep
 
 jobs/**/*

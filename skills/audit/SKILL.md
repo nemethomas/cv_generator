@@ -24,7 +24,7 @@ Um die Analyse ultraschnell, ressourcenschonend und lückenlos durchzuführen:
 
 1. **Zentrales Dossier (`docs/dossier.md`):**
    - Das zentrale Dossier bündelt alle 26 Nachweise, Diplome und Zeugnistranskripte (inkl. OCR-Texte) in einer einzigen Datei.
-   - Falls neue PDFs in `docs/` abgelegt werden, kann das Dossier jederzeit via `/audit sync` oder `python3 skills/audit/sync_dossier.py` aktualisiert werden.
+   - Falls neue PDFs in `docs/` abgelegt werden, kann das Dossier jederzeit via `make dossier` oder `python3 scripts/sync_dossier.py` aktualisiert werden.
 
 2. **Ziel-Lebenslauf identifizieren:**
    - Standardmässig die angegebene Zieldatei prüfen (z. B. `src/cv-example.md` oder ein spezifischer CV).

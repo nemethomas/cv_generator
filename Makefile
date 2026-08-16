@@ -20,9 +20,9 @@ PDFS = $(CV_PDFS) $(LETTER_PDFS)
 # Standard: alle vorhandenen Dokumente bauen
 all: $(PDFS)
 
-# Dossier-Synchronisation (OCR & Aggregation aller Nachweise in docs/dossier.md)
+# Dossier-Synchronisation (OCR & Aggregation aller Nachweise in docs/dossier.md & profile.json)
 dossier sync:
-	@python3 skills/audit/sync_dossier.py
+	@python3 scripts/sync_dossier.py
 
 # Standard-Beispieldokumente
 example: $(DIST_DIR)/cv-example.pdf $(DIST_DIR)/letter-example.pdf

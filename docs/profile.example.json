@@ -1,0 +1,59 @@
+{
+  "last_synced": "2026-01-01T12:00:00",
+  "total_documents": 5,
+  "target_roles": [
+    "Cloud Architect",
+    "Solutions Architect",
+    "DevOps Engineer",
+    "Systems Engineer"
+  ],
+  "competencies": {
+    "technologies": [
+      "aws",
+      "azure",
+      "kubernetes",
+      "terraform",
+      "docker",
+      "python",
+      "linux",
+      "ci/cd",
+      "git",
+      "rest api"
+    ],
+    "methods_domains": [
+      "solution architecture",
+      "cloud computing",
+      "infrastructure as code",
+      "devops",
+      "agile",
+      "scrum",
+      "monitoring"
+    ],
+    "certifications": [
+      "aws certified solutions architect",
+      "bachelor",
+      "master",
+      "itil"
+    ]
+  },
+  "scoring_weights": {
+    "aws": 9,
+    "azure": 8,
+    "kubernetes": 9,
+    "terraform": 8,
+    "docker": 7,
+    "python": 7,
+    "linux": 6,
+    "solution architecture": 9,
+    "cloud computing": 8,
+    "ci/cd": 7,
+    "agile": 6
+  },
+  "edu_weights": {
+    "bachelor": 5,
+    "master": 6,
+    "itil": 5,
+    "aws": 8,
+    "scrum": 4
+  }
+}

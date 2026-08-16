@@ -2,8 +2,8 @@
 """
 Dossier Sync & OCR Extractor for CV Documents.
 Scans docs/ (zeugnisse, ausbildung, zertifikate, sprachen), performs high-precision
-text extraction (pypdf + native macOS Apple Vision OCR for image scans), and aggregates
-everything into a clean, structured, and fast-to-read docs/dossier.md.
+text extraction (pypdf + native macOS Apple Vision OCR for image scans), aggregates
+everything into docs/dossier.md, and automatically extracts docs/profile.json.
 """
 
 import sys
@@ -18,9 +18,16 @@ try:
 except ImportError:
     pypdf = None
 
-BASE_DIR = Path(__file__).resolve().parents[2]
+BASE_DIR = Path(__file__).resolve().parents[1]
 DOCS_DIR = BASE_DIR / "docs"
 DOSSIER_FILE = DOCS_DIR / "dossier.md"
+
+# Import profile extractor from same scripts folder
+SCRIPTS_DIR = Path(__file__).resolve().parent
+if str(SCRIPTS_DIR) not in sys.path:
+    sys.path.insert(0, str(SCRIPTS_DIR))
+
+from extract_profile import build_profile, PROFILE_FILE
 
 SWIFT_OCR_SCRIPT = r"""
 import Foundation
@@ -105,9 +112,7 @@ def format_doc_entry(category, pdf_file, raw_text):
     rel_path = pdf_file.relative_to(DOCS_DIR)
     clean_title = pdf_file.stem.replace("_", " ")
 
-    # Clean text formatting
     clean_text = raw_text.strip()
-    # Remove excessive blank lines
     clean_text = re.sub(r'\n{3,}', '\n\n', clean_text)
 
     entry = f"### 📄 {clean_title}\n\n"
@@ -121,7 +126,7 @@ def format_doc_entry(category, pdf_file, raw_text):
 
 
 def sync_dossier(output_file=DOSSIER_FILE):
-    """Scan docs/ and regenerate docs/dossier.md."""
+    """Scan docs/ and regenerate docs/dossier.md, then build docs/profile.json."""
     if not DOCS_DIR.exists():
         print(f"Fehler: Ordner {DOCS_DIR} existiert nicht.", file=sys.stderr)
         return False
@@ -161,6 +166,12 @@ def sync_dossier(output_file=DOSSIER_FILE):
     output_path = Path(output_file)
     output_path.write_text(content, encoding="utf-8")
     print(f"\n✓ Erfolgreich synchronisiert: {total_docs} Dokumente in {output_path.relative_to(BASE_DIR)} aggregiert.")
+
+    # Automatically extract profile & keyword weights
+    print("\n🔄 Generiere dynamisches Bewerberprofil & Keyword-Wortwolke...")
+    profile = build_profile()
+    roles = ", ".join(profile.get("target_roles", [])[:5])
+    print(f"✓ Profil aktualisiert in {PROFILE_FILE.relative_to(BASE_DIR)} (Rollen: {roles})")
     return True
 
 

@@ -40,6 +40,9 @@ Dadurch lassen sich Inhalt und Gestaltung vollständig unabhängig voneinander p
 ├── dist/                    # Generierte PDF-Dateien (Lebensläufe & Anschreiben)
 ├── docs/                    # Nachweise, Zeugnisse & Zertifikate (lokal / privat, via .gitignore geschützt)
 ├── jobs/                    # Stellenbeschreibungen & Inserate (lokal / privat, via .gitignore geschützt)
+├── scripts/                 # Zentrale Daten- & Extraktions-Pipelines
+│   ├── sync_dossier.py      # OCR-Textextraktion & Erstellung von docs/dossier.md
+│   └── extract_profile.py   # Dynamische Wortwolken- & Rollen-Extraktion nach docs/profile.json
 ├── skills/                  # Erweiterte Qualitätssicherungs- & Automatisierungs-Skills
 │   ├── audit/               # Evidence- & Trust-Check gegen Zeugnisse
 │   ├── fit/                 # Match-Score- & ATS-Analyse gegen Stelleninserat
@@ -106,7 +109,7 @@ make example
 make cv-<firma>
 make letter-<firma>
 
-# Nachweise & Zeugnisse synchronisieren (OCR & Aufbau docs/dossier.md)
+# Nachweise & Zeugnisse synchronisieren (OCR, docs/dossier.md & docs/profile.json)
 make dossier
 ```
 
@@ -147,7 +150,7 @@ Das Projekt beinhaltet spezialisierte Skills zur automatisierten Suche, Prüfung
 
 ## Workflow: Vom Job-Scouting zum fertigen Dossier
 
-1. **Nachweise bereitstellen:** PDFs unter `docs/` ablegen und einmalig `make dossier` ausführen (generiert die durchsuchbare `docs/dossier.md` via OCR).
+1. **Nachweise bereitstellen:** PDFs unter `docs/` ablegen und einmalig `make dossier` ausführen (generiert via OCR `docs/dossier.md` und das dynamische Bewerberprofil `docs/profile.json`).
 2. **Passende Stellen finden:** `/scout` oder `/scout "Data Scientist"` ausführen, um Vakanzen in Zürich zu identifizieren.
 3. **Stelleninserat importieren:** Ausgewähltes Inserat als `jobs/<firma>.md` abspeichern.
 4. **Dokumente erstellen:** Markdown-Dateien `src/cv-<firma>.md` und `src/letter-<firma>.md` anlegen (z. B. auf Basis von `src/cv-example.md`).

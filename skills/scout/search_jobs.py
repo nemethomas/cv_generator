@@ -2,7 +2,7 @@
 """
 Job Scout & Match Analyzer for Swiss Job Market (Zürich & Agglomeration).
 Multi-Source Architecture: jobs.ch, LinkedIn/Indeed/Glassdoor (JobSpy), SwissDevJobs.
-Calculates Evidence Match Scores against work certificates (docs/) and profile (src/cv-standard.md).
+Calculates Evidence Match Scores dynamically based on docs/profile.json (extracted from docs/dossier.md).
 """
 
 import sys
@@ -23,8 +23,11 @@ from providers import get_enabled_providers, fetch_full_job_data
 from providers.base import JobItem
 
 BASE_DIR = Path(__file__).resolve().parents[2]
+DOCS_DIR = BASE_DIR / "docs"
 CONFIG_FILE = SCOUT_DIR / "config.json"
 JOBS_DIR = BASE_DIR / "jobs"
+PROFILE_FILE = DOCS_DIR / "profile.json"
+PROFILE_EXAMPLE_FILE = DOCS_DIR / "profile.example.json"
 
 
 def load_config() -> Dict[str, Any]:
@@ -54,18 +57,35 @@ def load_config() -> Dict[str, Any]:
             {"name": "Inventx", "aliases": ["Inventx", "Inventx AG", "Inventix"], "career_url": "https://inventx.ch/karriere"},
             {"name": "ELCA", "aliases": ["Elca informatique SA", "ELCA AG", "ELCA Group", "ELCA Cloud Services SA", "ELCA Security SA", "ELCA"], "career_url": "https://www.elca.ch/de/karriere"}
         ],
-        "blacklist_companies": ["RUAG", "RUAG MRO Holding", "RUAG Defence", "RUAG Space", "RUAG AG"],
-        "target_roles": [
-            "Business Engineer", "Requirements Engineer", "IT Business Analyst",
-            "Solution Designer", "Solution Engineer", "Data Engineer", "Data Scientist", "Product Owner", "Technical Consultant",
-            "Input Engineer", "Output Management", "Dokumentenmanagement", "ECM"
-        ],
-        "core_competencies": [
-            "Oracle", "SQL", "PL/SQL", "Python", "SYRIUS", "ETL", "DWH",
-            "Data Engineering", "Data Science", "Machine Learning", "Migration",
-            "IAM", "Berechtigungen", "APIs", "REST", "Krankenversicherung",
-            "Leistungen", "Bestand", "IREB", "IPMA", "ITIL"
-        ]
+        "blacklist_companies": ["RUAG", "RUAG MRO Holding", "RUAG Defence", "RUAG Space", "RUAG AG"]
+    }
+
+
+def load_profile() -> Dict[str, Any]:
+    """Load dynamic candidate profile from docs/profile.json (fallback: profile.example.json)."""
+    if PROFILE_FILE.exists():
+        try:
+            with open(PROFILE_FILE, "r", encoding="utf-8") as f:
+                return json.load(f)
+        except Exception as e:
+            print(f"Warnung: Profil {PROFILE_FILE} konnte nicht gelesen werden: {e}", file=sys.stderr)
+
+    if PROFILE_EXAMPLE_FILE.exists():
+        try:
+            with open(PROFILE_EXAMPLE_FILE, "r", encoding="utf-8") as f:
+                return json.load(f)
+        except Exception:
+            pass
+
+    return {
+        "target_roles": ["Business Engineer", "IT Business Analyst", "Data Engineer"],
+        "scoring_weights": {
+            "sql": 8, "python": 7, "oracle": 7, "etl": 6, "requirements engineering": 8,
+            "data engineering": 8, "syrius": 9, "agile": 6
+        },
+        "edu_weights": {
+            "cas": 7, "master": 6, "bachelor": 5, "ireb": 7, "ipma": 6, "itil": 5
+        }
     }
 
 
@@ -111,57 +131,41 @@ def is_location_allowed(place: str, allowed_regions: List[str]) -> bool:
     return False
 
 
-def calculate_match_score(title: str, description: str, company_name: str, config: Dict[str, Any]) -> Tuple[int, List[str], bool, Optional[str]]:
+def calculate_match_score(
+    title: str,
+    description: str,
+    company_name: str,
+    config: Dict[str, Any],
+    profile: Dict[str, Any]
+) -> Tuple[int, List[str], bool, Optional[str]]:
     """
-    Calculate an evidence match score (0-100%) against CV profile and certificates.
+    Calculate dynamic evidence match score (0-100%) against candidate profile (docs/profile.json).
     Weights:
-      - Base / Role & Geographic Fit: 40%
-      - Tech- & Domain-Stack: up to 40%
-      - Education & Certificates: up to 20%
+      - Base / Regional & Target Role Fit: 40%
+      - Tech- & Domain-Stack (dynamic weights): up to 40%
+      - Education & Certifications (dynamic weights): up to 20%
     """
     text = f"{title} {description} {company_name}".lower()
     score = 40  # Base score for role and regional relevance
 
-    # Tech & Domain skills matching (up to +40)
-    tech_keywords = {
-        "sql": 7, "oracle": 7, "pl/sql": 6, "python": 6,
-        "data engineer": 8, "data engineering": 8, "data scientist": 8, "data science": 8, "machine learning": 6,
-        "data modeling": 6, "datenmodellierung": 6, "data model": 6, "bi": 5,
-        "dbt": 6, "bigquery": 6, "airflow": 6, "cloud": 5, "azure": 6, "gcp": 6, "aws": 5,
-        "etl": 6, "dwh": 6, "data warehouse": 6, "elasticsearch": 4, "kibana": 4,
-        "syrius": 9, "migration": 6, "versicherung": 5, "krankenversicherung": 5,
-        "input engineer": 8, "dokumentenmanagement": 8, "inputmanagement": 8, "input management": 8,
-        "input": 6, "output": 6, "output-management": 8, "outputmanagement": 8, "output management": 8,
-        "enterprise content management": 8, "iim": 6, "informationsmanagement": 6,
-        "dms": 6, "oms": 6, "ecm": 6, "archiv": 5, "archivierung": 6, "kodak": 5, "docprostar": 5,
-        "business analyst": 8, "business analysis": 8, "business analyse": 8,
-        "business engineer": 8, "business engineering": 8,
-        "solution engineer": 8, "solution engineering": 8,
-        "requirements engineer": 7, "requirements engineering": 7, "anforderungsmanagement": 6,
-        "solution designer": 7, "solution design": 7, "product owner": 6,
-        "use cases": 4, "user stories": 4, "bpmn": 4, "bpm": 4, "prozessmanagement": 5, "business process": 5,
-        "access management": 7, "identity": 6, "ciam": 6, "iam": 6, "berechtigung": 5, "rollenmodell": 5,
-        "api": 4, "rest": 4, "linux": 3, "unix": 3, "devops": 4,
-        "tomcat": 4, "wildfly": 4, "jboss": 4
-    }
+    scoring_weights = profile.get("scoring_weights", {})
+    edu_weights = profile.get("edu_weights", {})
 
+    # Tech & Domain skills matching (up to +40)
     matched_tech = []
     tech_points = 0
-    for kw, pts in tech_keywords.items():
-        if re.search(r'(?:^|[\s\-_/,\.;:\(\)\[\]])' + re.escape(kw) + r'(?:$|[\s\-_/,\.;:\(\)\[\]])', text):
+    for kw, pts in scoring_weights.items():
+        pattern = r'(?:^|[\s\-_/,\.;:\(\)\[\]])' + re.escape(kw.lower()) + r'(?:$|[\s\-_/,\.;:\(\)\[\]])'
+        if re.search(pattern, text):
             tech_points += pts
             matched_tech.append(kw)
     score += min(40, tech_points)
 
     # Education & Certification matching (up to +20)
-    edu_keywords = {
-        "cas": 7, "mas": 5, "bachelor": 5, "master": 5, "hochschule": 4, "fachhochschule": 4, "zhaw": 5,
-        "studium": 4, "informatik": 5, "computer science": 5, "fh": 3, "uni": 3, "eth": 3,
-        "ireb": 7, "ipma": 6, "itil": 5, "scrum": 4, "agil": 3
-    }
     edu_points = 0
-    for kw, pts in edu_keywords.items():
-        if re.search(r'(?:^|[\s\-_/,\.;:\(\)\[\]])' + re.escape(kw) + r'(?:$|[\s\-_/,\.;:\(\)\[\]])', text):
+    for kw, pts in edu_weights.items():
+        pattern = r'(?:^|[\s\-_/,\.;:\(\)\[\]])' + re.escape(kw.lower()) + r'(?:$|[\s\-_/,\.;:\(\)\[\]])'
+        if re.search(pattern, text):
             edu_points += pts
             matched_tech.append(kw)
     score += min(20, edu_points)
@@ -187,12 +191,19 @@ def search_jobs(query: Optional[str] = None, whitelist_only: bool = False, max_r
     apply filters, deduplicate cross-portal listings, and calculate Evidence Match Scores.
     """
     config = load_config()
+    profile = load_profile()
+
     allowed_regions = config.get("location", {}).get("allowed_regions", ["Zürich"])
     blacklist = config.get("blacklist_companies", [])
     whitelist = config.get("whitelist_companies", [])
     primary_loc = config.get("location", {}).get("primary", "Zürich")
 
-    target_roles = [query] if query else config.get("target_roles", ["Business Engineer"])
+    if query:
+        target_roles = [query]
+    else:
+        profile_roles = profile.get("target_roles", [])
+        target_roles = profile_roles if profile_roles else ["Business Engineer", "IT Business Analyst", "Data Engineer"]
+
     providers = get_enabled_providers(config)
 
     raw_items: List[JobItem] = []
@@ -223,10 +234,10 @@ def search_jobs(query: Optional[str] = None, whitelist_only: bool = False, max_r
         item.is_whitelist = is_white
         item.whitelist_name = white_name
 
-        # Calculate score
+        # Calculate score dynamically
         desc_to_score = item.description_full or item.preview or ""
         score, matched_kws, _, _ = calculate_match_score(
-            item.title, desc_to_score, item.company, config
+            item.title, desc_to_score, item.company, config, profile
         )
         item.match_score = score
         item.matched_keywords = matched_kws
@@ -235,10 +246,8 @@ def search_jobs(query: Optional[str] = None, whitelist_only: bool = False, max_r
         dedup_key = generate_dedup_key(item.company, item.title)
         if dedup_key in dedup_dict:
             existing = dedup_dict[dedup_key]
-            # Merge sources if found across multiple portals
             if item.source not in existing.source:
                 existing.source = f"{existing.source}, {item.source}"
-            # Keep highest score / richer description
             if item.match_score > existing.match_score:
                 existing.match_score = item.match_score
             if item.description_full and not existing.description_full:
@@ -247,7 +256,6 @@ def search_jobs(query: Optional[str] = None, whitelist_only: bool = False, max_r
             dedup_dict[dedup_key] = item
 
     results = list(dedup_dict.values())
-    # Sort descending by evidence match score
     results.sort(key=lambda x: x.match_score, reverse=True)
     return results[:max_results]
 
@@ -321,8 +329,12 @@ def main():
         return
 
     config = load_config()
+    profile = load_profile()
     sources_cfg = config.get("sources", {})
     active_sources = [k for k, v in sources_cfg.items() if v.get("enabled", True)]
+
+    target_roles = profile.get("target_roles", [])
+    roles_preview = ", ".join(target_roles[:4]) if target_roles else "Allgemein"
 
     print(f"# 🧭 Job Scout: Multi-Source Stellenangebote (Grossraum Zürich)\n")
     print(f"📡 **Aktive Quellen:** {', '.join(active_sources).upper()}")
@@ -331,8 +343,8 @@ def main():
     elif args.query:
         print(f"🔍 **Suchbegriff:** `{args.query}` (Zürich & Agglo, Pensum >= 60%)")
     else:
-        print("🔍 **Suchbereich:** Zürich, Altstetten, Dietikon, Dübendorf, Wallisellen (Pensum >= 60%)")
-        print("🎯 **Fokus:** Business Engineering, Data Engineering, Solution Engineering, ECM")
+        print(f"🔍 **Suchbereich:** Zürich & Agglomeration (Pensum >= 60%)")
+        print(f"🎯 **Dynamische Profil-Rollen ({len(target_roles)}):** {roles_preview}")
 
     print("🛡️ **Ausschluss:** RUAG (Blacklist aktiv)\n")
 

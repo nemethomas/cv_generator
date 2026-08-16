@@ -1,11 +1,11 @@
 ---
 name: scout
-description: Durchsucht Schweizer Stellenportale (jobs.ch API, LinkedIn/Indeed via JobSpy, SwissDevJobs) nach passenden IT-, Business-Engineering- und Data-Science-Positionen im Grossraum Zürich, filtert nach Blacklist (RUAG), prüft den Pensum-Filter (>= 60%) und berechnet einen reinen Evidence-Match-Score anhand der Arbeitszeugnisse und des Profils.
+description: Durchsucht Schweizer Stellenportale (jobs.ch API, LinkedIn/Indeed via JobSpy, SwissDevJobs) nach passenden Positionen im Grossraum Zürich, filtert nach Blacklist (RUAG), prüft den Pensum-Filter (>= 60%) und berechnet einen dynamischen Evidence-Match-Score anhand der Arbeitszeugnisse und des Profils (docs/profile.json).
 ---
 
 # Skill: Job Scout & Evidence Matcher (scout)
 
-Dieser Skill automatisiert die Multi-Source-Suche, Filterung und Bewertung passender Stellenangebote im Grossraum Zürich über mehrere Portale (jobs.ch, LinkedIn, Indeed, SwissDevJobs) auf Basis deines echten Leistungsprofils und deiner Arbeitszeugnisse in `docs/`.
+Dieser Skill automatisiert die Multi-Source-Suche, Filterung und Bewertung passender Stellenangebote im Grossraum Zürich über mehrere Portale (jobs.ch, LinkedIn, Indeed, SwissDevJobs) auf Basis deines dynamischen Leistungsprofils und deiner Arbeitszeugnisse in `docs/profile.json`.
 
 ---
 
@@ -25,8 +25,8 @@ Die Quellen können in `skills/scout/config.json` modular aktiviert oder deaktiv
    - **Fokus:** Zürich und unmittelbare Agglomeration (`Zürich`, `Altstetten`, `Dietikon`, `Dübendorf`, `Wallisellen`).
 2. **Pensum:**
    - Mindestens **60 %** (60–100 %).
-3. **Zielrollen:**
-   - *Business Engineer, Requirements Engineer, IT Business Analyst, Solution Designer, Data Engineer, Data Scientist, Product Owner, Technical Consultant*.
+3. **Dynamische Zielrollen (`docs/profile.json`):**
+   - Werden beim Ausführen von `make dossier` vollautomatisch aus den Zeugnissen und dem Lebenslauf extrahiert.
 4. **Blacklist-Unternehmen (🚫 Kategorischer Ausschluss):**
    - **RUAG** (inkl. aller Sparten wie MRO, Defence, Space).
 
@@ -34,13 +34,13 @@ Die Quellen können in `skills/scout/config.json` modular aktiviert oder deaktiv
 
 ## 📊 Bewertungsmatrix (Evidence Match Score 0–100%)
 
-Jede gefundene Stelle wird gegen deine realen Nachweise und Zeugnisse bewertet:
+Jede gefundene Stelle wird dynamisch gegen deine realen Nachweise in `docs/profile.json` bewertet:
 
-| Kriterium | Gewicht | Prüfung gegen `docs/` & Profil |
+| Kriterium | Gewicht | Prüfung gegen `docs/profile.json` |
 | :--- | :---: | :--- |
-| **Tech- & Domain-Stack** | **40 %** | Praxisnachweis in Zeugnissen (SQL, Oracle, PL/SQL, Python, SYRIUS, Data Engineering, Data Science, Machine Learning, ETL, DWH, IAM, Berechtigungen). |
-| **Rollen- & Aufgaben-Fit** | **40 %** | Übereinstimmung mit Aufgaben (Business Engineering, Requirements Engineering, BPMN, Use Cases, Migration, Solution Design). |
-| **Ausbildung & Zertifikate** | **20 %** | Bestätigte Abschlüsse (CAS Data Engineering, CAS Business Analysis, CAS Projektmanagement, IREB, IPMA, ITIL, EFZ/Maturität). |
+| **Tech- & Domain-Stack** | **40 %** | Dynamische Keyword-Wortwolke aus den Zeugnissen (mit Häufigkeitsgewichtung). |
+| **Rollen- & Aufgaben-Fit** | **40 %** | Übereinstimmung mit deinen extrahierten Berufsbezeichnungen und Funktionen. |
+| **Ausbildung & Zertifikate** | **20 %** | Bestätigte Abschlüsse und Zertifikate aus `docs/`. |
 
 ---
 
