@@ -62,6 +62,9 @@ $(DIST_DIR)/letter-%.pdf: $(SRC_DIR)/letter-%.md $(LETTER_TEMPLATE)
 	pandoc $< --template=$(LETTER_TEMPLATE) --pdf-engine=$(ENGINE) -o $@
 	@echo "✓ Generiert: $@"
 
+# Verhindern, dass Makefile selbst als Pattern gematcht wird
+Makefile: ;
+
 # Dynamische Kurz-Targets für beliebige Ziele (z. B. make cv-<name>, make letter-<name>, make <name>)
 cv-%: $(DIST_DIR)/cv-%.pdf ;
 letter-%: $(DIST_DIR)/letter-%.pdf ;
