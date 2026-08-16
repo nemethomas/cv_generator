@@ -47,7 +47,7 @@ Jede gefundene Stelle wird dynamisch gegen deine realen Nachweise in `docs/profi
 ## 🚀 CLI-Verwendung
 
 ```bash
-# Standard-Suche: Top-Matches im Raum Zürich
+# Standard-Suche: Top-Matches im Raum Zürich (oder im Terminal: make scout)
 /scout
 
 # Gezielte Suche nach einer Rolle oder Technologie
@@ -57,17 +57,14 @@ Jede gefundene Stelle wird dynamisch gegen deine realen Nachweise in `docs/profi
 # Nur Whitelist-Unternehmen durchsuchen
 /scout --whitelist
 
-# Einzelne Stellen-URL analysieren und nach jobs/ exportieren
-/scout https://www.jobs.ch/de/stellenangebote/detail/<id>/
-
-# Gefundenes Inserat herunterladen und in jobs/ anlegen
-python3 skills/scout/search_jobs.py --save <job-id>
+# Gefundenes Inserat mit kurzem Firmenkürzel in jobs/ anlegen
+python3 skills/scout/search_jobs.py --save <job-id> --as <firma>
 ```
 
 ---
 
 ## 🔄 Nahtloser Workflow nach dem Scouting
 
-1. **Stelle importieren:** Das Inserat wird mit `--save <id>` sauber als `jobs/<firma>-<titel>.md` abgelegt.
+1. **Stelle importieren:** Das Inserat wird mit `--save <id> --as <firma>` sauber als `jobs/<firma>.md` (z. B. `jobs/zkb.md`) abgelegt.
 2. **Passgenauigkeit vertiefen:** `/fit <firma>` analysiert den genauen Match und ATS-Keywords.
 3. **Bewerbungsunterlagen bauen:** `make <firma>` generiert den massgeschneiderten 2-Seiter und das Anschreiben.

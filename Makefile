@@ -15,10 +15,31 @@ CV_PDFS = $(patsubst $(SRC_DIR)/cv-%.md, $(DIST_DIR)/cv-%.pdf, $(CV_SRCS))
 LETTER_PDFS = $(patsubst $(SRC_DIR)/letter-%.md, $(DIST_DIR)/letter-%.pdf, $(LETTER_SRCS))
 PDFS = $(CV_PDFS) $(LETTER_PDFS)
 
-.PHONY: all clean example cv-example letter-example dossier sync
+.PHONY: all clean example cv-example letter-example dossier sync scout links help
 
 # Standard: alle vorhandenen Dokumente bauen
 all: $(PDFS)
+
+# Hilfe & Befehlsübersicht
+help:
+	@echo "📋 Verfügbare Make-Befehle:"
+	@echo "  make <firma>        Kompiliert Lebenslauf & Anschreiben für <firma> (z. B. make zkb)"
+	@echo "  make cv-<firma>     Kompiliert nur den Lebenslauf (z. B. make cv-zkb)"
+	@echo "  make letter-<firma> Kompiliert nur das Anschreiben (z. B. make letter-zkb)"
+	@echo "  make all            Kompiliert alle vorhandenen Dokumente in src/"
+	@echo "  make example        Baut die Standard-Beispieldokumente"
+	@echo "  make dossier        Liest Nachweise in docs/ ein (OCR & dynamisches Profil)"
+	@echo "  make scout          Startet die Stellensuche im Grossraum Zürich"
+	@echo "  make links          Prüft Hyperlinks und URLs in Markdown und PDFs"
+	@echo "  make clean          Löscht alle generierten PDFs im Ordner dist/"
+
+# Stellensuche im Terminal
+scout:
+	@python3 skills/scout/search_jobs.py
+
+# Link-Validierung
+links:
+	@python3 skills/links/check_links.py
 
 # Dossier-Synchronisation (OCR & Aggregation aller Nachweise in docs/dossier.md & profile.json)
 dossier sync:
@@ -46,8 +67,20 @@ cv-%: $(DIST_DIR)/cv-%.pdf ;
 letter-%: $(DIST_DIR)/letter-%.pdf ;
 
 %:
-	@if [ -f "$(SRC_DIR)/cv-$@.md" ]; then $(MAKE) --no-print-directory $(DIST_DIR)/cv-$@.pdf; fi
-	@if [ -f "$(SRC_DIR)/letter-$@.md" ]; then $(MAKE) --no-print-directory $(DIST_DIR)/letter-$@.pdf; fi
+	@found=0; \
+	if [ -f "$(SRC_DIR)/cv-$@.md" ]; then \
+		$(MAKE) --no-print-directory $(DIST_DIR)/cv-$@.pdf; \
+		found=1; \
+	fi; \
+	if [ -f "$(SRC_DIR)/letter-$@.md" ]; then \
+		$(MAKE) --no-print-directory $(DIST_DIR)/letter-$@.pdf; \
+		found=1; \
+	fi; \
+	if [ $$found -eq 0 ]; then \
+		echo "❌ Keine Vorlage 'src/cv-$@.md' oder 'src/letter-$@.md' gefunden."; \
+		echo "💡 Tipp: Lege die Datei an mit 'cp src/cv-example.md src/cv-$@.md' oder führe 'make help' aus."; \
+		exit 1; \
+	fi
 
 clean:
 	rm -rf $(DIST_DIR)/*.pdf

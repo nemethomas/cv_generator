@@ -9,4 +9,4 @@ Führe das Skript `skills/scout/search_jobs.py` mit den übergebenen Argumenten 
 python3 skills/scout/search_jobs.py $ARGUMENTS
 ```
 
-Falls ein Treffer besonders gut passt oder der Benutzer eine Stelle importieren möchte, speichere das Inserat als `jobs/<firma>-<titel>.md` und informiere über die nächsten Schritte (`/fit`, `make`).
+Falls ein Treffer besonders gut passt oder der Benutzer eine Stelle importieren möchte, speichere das Inserat als `jobs/<firma>.md` (z. B. mit `--as <firma>`) und informiere über die nächsten Schritte (`/fit`, `make`).

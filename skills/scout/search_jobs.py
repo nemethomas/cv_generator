@@ -29,6 +29,87 @@ JOBS_DIR = BASE_DIR / "jobs"
 PROFILE_FILE = DOCS_DIR / "profile.json"
 PROFILE_EXAMPLE_FILE = DOCS_DIR / "profile.example.json"
 
+COMPANY_MAPPINGS = {
+    "zürcher kantonalbank": "zkb",
+    "zuercher kantonalbank": "zkb",
+    "zkb": "zkb",
+    "swisscom": "swisscom",
+    "localsearch": "localsearch",
+    "google": "google",
+    "zühlke": "zuehlke",
+    "zuehlke": "zuehlke",
+    "inventx": "inventx",
+    "elca": "elca",
+    "adcubum": "adcubum",
+    "helsana": "helsana",
+    "swica": "swica",
+    "sanitas": "sanitas",
+    "axa": "axa",
+    "die mobiliar": "mobiliar",
+    "mobiliar": "mobiliar",
+    "css": "css",
+    "ubs": "ubs",
+    "credit suisse": "cs",
+    "post": "post",
+    "postfinance": "postfinance",
+    "sbb": "sbb",
+    "migros": "migros",
+    "coop": "coop",
+    "denner": "denner",
+    "wavestone": "wavestone",
+    "yousty": "yousty",
+    "julius bär": "juliusbaer",
+    "julius baer": "juliusbaer",
+    "avaloq": "avaloq",
+    "ti&m": "ti8m",
+    "netcetera": "netcetera",
+    "ergon": "ergon",
+    "namics": "namics",
+    "unic": "unic",
+}
+
+
+def clean_company_slug(company: str) -> str:
+    """Generate a clean, concise, lowercase slug for a company."""
+    if not company:
+        return "job"
+
+    comp_lower = company.lower().strip()
+
+    # Check known mappings first
+    for k, v in COMPANY_MAPPINGS.items():
+        if k in comp_lower:
+            return v
+
+    # German umlaut replacements
+    text = comp_lower.replace("ä", "ae").replace("ö", "oe").replace("ü", "ue").replace("ß", "ss")
+
+    # Remove common corporate suffixes & legal structures
+    strip_words = [
+        r'\bag\b', r'\bgmbh\b', r'\bsa\b', r'\bholding\b', r'\bgroup\b', r'\bgruppe\b',
+        r'\bschweiz\b', r'\bswitzerland\b', r'\bgenossenschaft\b', r'\binformatik\b',
+        r'\bengineering\b', r'\bservices\b', r'\bsolutions\b', r'\btechnologies\b',
+        r'\bconsulting\b', r'\bberatung\b', r'\bmanagement\b', r'\bdigital\b', r'\blabs\b',
+        r'\bch\b', r'\bllc\b', r'\binc\b', r'\bltd\b'
+    ]
+    for pattern in strip_words:
+        text = re.sub(pattern, '', text)
+
+    # Remove punctuation & special characters
+    text = re.sub(r'[^a-z0-9\s]', ' ', text)
+    words = [w for w in text.split() if w]
+
+    if not words:
+        fallback = re.sub(r'[^a-z0-9]', '', comp_lower.replace("ä", "ae").replace("ö", "oe").replace("ü", "ue"))
+        return fallback[:12] if fallback else "job"
+
+    # Filter generic prefixes like 'stiftung', 'verein' if followed by substantive word
+    if words[0] in ["stiftung", "verein"] and len(words) > 1:
+        words = words[1:]
+
+    slug = words[0] if len(words[0]) >= 3 or len(words) == 1 else f"{words[0]}{words[1]}"
+    return slug[:15]
+
 
 def load_config() -> Dict[str, Any]:
     """Load configuration from config.json or use sensible defaults."""
@@ -260,8 +341,8 @@ def search_jobs(query: Optional[str] = None, whitelist_only: bool = False, max_r
     return results[:max_results]
 
 
-def export_job_to_markdown(job_id_or_data: Any, target_file: Optional[str] = None) -> Optional[Path]:
-    """Download full job detail and export to markdown in jobs/ directory."""
+def export_job_to_markdown(job_id_or_data: Any, custom_slug: Optional[str] = None) -> Optional[Path]:
+    """Download full job detail and export to a clean markdown file in jobs/ directory."""
     JOBS_DIR.mkdir(parents=True, exist_ok=True)
     config = load_config()
 
@@ -284,11 +365,31 @@ def export_job_to_markdown(job_id_or_data: Any, target_file: Optional[str] = Non
     skills_list = detail.get("skills", [])
     skills_formatted = ", ".join(skills_list) if skills_list else "Nicht separat aufgeführt"
 
-    # Create slug for filename
-    comp_slug = re.sub(r'[^a-zA-Z0-9]', '', company.lower())[:15]
-    title_slug = re.sub(r'[^a-zA-Z0-9]', '-', title.lower())[:30]
-    filename = target_file or f"{comp_slug}-{title_slug}.md"
+    # Determine concise slug for the filename
+    if custom_slug:
+        base_slug = re.sub(r'[^a-zA-Z0-9\-_]', '', custom_slug.lower().strip())
+    else:
+        base_slug = clean_company_slug(company)
+
+    if not base_slug:
+        base_slug = "job"
+
+    # Avoid colliding with different job descriptions
+    filename = f"{base_slug}.md"
     file_path = JOBS_DIR / filename
+
+    if file_path.exists():
+        try:
+            existing_content = file_path.read_text(encoding="utf-8")
+            # If it's a different job at the same company, append a counter
+            if f"ID:** `{job_id}`" not in existing_content and (not job_url or job_url not in existing_content):
+                counter = 2
+                while (JOBS_DIR / f"{base_slug}-{counter}.md").exists():
+                    counter += 1
+                filename = f"{base_slug}-{counter}.md"
+                file_path = JOBS_DIR / filename
+        except Exception:
+            pass
 
     content = f"""# Stellenbeschreibung: {title}
 
@@ -318,14 +419,20 @@ def main():
     parser.add_argument("query", nargs="?", default=None, help="Suchbegriff, Job-Rolle, Firma oder URL")
     parser.add_argument("--whitelist", action="store_true", help="Nur Whitelist-Unternehmen durchsuchen")
     parser.add_argument("--save", type=str, default=None, help="Job-ID zum Speichern in jobs/")
+    parser.add_argument("--as", dest="custom_slug", type=str, default=None, help="Kurzer Dateiname für jobs/<slug>.md (z.B. zkb)")
     parser.add_argument("--limit", type=int, default=12, help="Anzahl der Treffer (Standard: 12)")
     args = parser.parse_args()
 
     if args.save:
-        saved_file = export_job_to_markdown(args.save)
+        saved_file = export_job_to_markdown(args.save, custom_slug=args.custom_slug)
         if saved_file:
-            print(f"✓ Stellenbeschreibung erfolgreich gespeichert: {saved_file}")
-            print(f"➡️ Du kannst nun `/fit {saved_file.stem}` oder `make {saved_file.stem}` ausführen.")
+            slug = saved_file.stem
+            print(f"\n✓ Stellenbeschreibung erfolgreich gespeichert: jobs/{saved_file.name}")
+            print(f"\n➡️ Nächste Schritte:")
+            print(f"   1. Vorlage erstellen:      cp src/cv-example.md src/cv-{slug}.md")
+            print(f"                              cp src/letter-example.md src/letter-{slug}.md")
+            print(f"   2. Passung & ATS prüfen:   /fit {slug}")
+            print(f"   3. Dokumente bauen:        make {slug}")
         return
 
     config = load_config()
@@ -358,7 +465,8 @@ def main():
     print("| :-: | :---: | :--- | :--- | :--- | :---: | :--- |")
     for idx, j in enumerate(jobs, 1):
         badge = "🟢" if j.match_score >= 80 else ("🟡" if j.match_score >= 65 else "🔴")
-        print(f"| {idx} | {badge} **{j.match_score}%** | [{j.title}]({j.url}) | {j.company} | {j.place} | `{j.source}` | `python3 skills/scout/search_jobs.py --save \"{j.id}\"` |")
+        suggested_slug = clean_company_slug(j.company)
+        print(f"| {idx} | {badge} **{j.match_score}%** | [{j.title}]({j.url}) | {j.company} | {j.place} | `{j.source}` | `python3 skills/scout/search_jobs.py --save \"{j.id}\" --as {suggested_slug}` |")
 
     print("\n---\n")
     print("💡 **Legende:** 🟢 = Hoher Match (>=80%) | 🟡 = Moderater Match (65-79%) | 🔴 = Niedriger Match (<65%)")
